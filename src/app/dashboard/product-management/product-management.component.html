@@ -1,27 +1,94 @@
-<button class="bg-red-400" (click)="showModal()">Thêm sản phẩm mới</button>
 <kendo-grid [data]="productss" [height]="550">
     <ng-template kendoGridToolbarTemplate>
+        <button class="bg-green-100 p-2 rounded-md " kendoButton (click)="onAddProduct()">Thêm sản phẩm</button>
     </ng-template>
-    <!-- <kendo-grid-column field="id" title="ID" [width]="50"></kendo-grid-column> -->
+    <kendo-grid-column field="id" title="ID" [width]="50"></kendo-grid-column>
     <kendo-grid-column field="name" title="Tên sản phẩm"></kendo-grid-column>
+
     <kendo-grid-column field="price" title="Giá" [width]="150">
         <ng-template kendoGridCellTemplate let-dataItem>
             {{ dataItem.price }} đ
         </ng-template>
     </kendo-grid-column>
+
     <kendo-grid-column field="shortDesc" title="Mô tả ngắn"></kendo-grid-column>
     <kendo-grid-column field="quantity" title="Tồn kho" [width]="80"></kendo-grid-column>
     <kendo-grid-column field="category.name" title="Danh mục"></kendo-grid-column>
     <kendo-grid-column field="manufacture.name" title="Hãng sản xuất"></kendo-grid-column>
+
     <kendo-grid-column title="Ảnh" [width]="100">
         <ng-template kendoGridCellTemplate let-dataItem>
-            <img [src]="dataItem.image" alt="{{ dataItem.name }}" width="80" />
+            <div class="w-auto h-[80px]  flex items-center justify-center">
+                <img [src]="dataItem.image" alt="{{ dataItem.name }}" height="100%" />
+            </div>
         </ng-template>
     </kendo-grid-column>
-    <kendo-grid-column title="" [width]="160">
-        <ng-template kendoGridCellTemplate let-dataItem class="justify-between">
-            <button kendoGridEditCommand [primary]="true">Sửa</button>
-            <button kendoGridRemoveCommand class="ml-4">Xóa</button>
+
+    <kendo-grid-column title="Hành động" [width]="120">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <button kendoButton (click)="onEditProduct(dataItem) " class="bg-sky-200 p-2 rounded-md mr-4 ">Sửa</button>
+            <button kendoButton class="bg-red-300 p-2 rounded-md" (click)="openDeleteDialog(dataItem.id)">Xóa</button>
+
         </ng-template>
     </kendo-grid-column>
 </kendo-grid>
+
+<!-- Modal -->
+<kendo-dialog *ngIf="selectedProduct" (close)="onCancelProduct()" [title]="isNew ? 'Thêm sản phẩm' : 'Sửa sản phẩm'"
+    [width]="600">
+    <div class="dialog-form">
+        <label>
+            Tên sản phẩm:
+            <input kendoTextBox [(ngModel)]="selectedProduct.name" />
+        </label>
+
+        <label>
+            Giá:
+            <input kendoTextBox type="number" [(ngModel)]="selectedProduct.price" />
+        </label>
+
+        <label>
+            Mô tả ngắn:
+            <input kendoTextBox [(ngModel)]="selectedProduct.shortDesc" />
+        </label>
+
+        <label>
+            Tồn kho:
+            <input kendoTextBox type="number" [(ngModel)]="selectedProduct.quantity" />
+        </label>
+
+        <label>
+            Ảnh:
+            <input type="file" (change)="onImageSelected($event)" />
+            <img *ngIf="selectedProduct.image" [src]="selectedProduct.image" alt="Preview" width="100" />
+        </label>
+        <br>
+        <br>
+        <label>
+            Danh mục:
+            <kendo-dropdownlist [data]="categorys" textField="name" valueField="id"
+                [(ngModel)]="selectedProduct.category">
+            </kendo-dropdownlist>
+        </label>
+
+        <label>
+            Hãng sản xuất:
+            <kendo-dropdownlist [data]="manufactures" textField="name" valueField="id"
+                [(ngModel)]="selectedProduct.manufacture">
+            </kendo-dropdownlist>
+        </label>
+    </div>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="onCancelProduct()">Hủy</button>
+        <button kendoButton (click)="onSaveProduct(selectedProduct)">Lưu</button>
+    </kendo-dialog-actions>
+</kendo-dialog>
+
+<kendo-dialog *ngIf="showDeleteDialog" (close)="cancelDelete()" title="Xác nhận xóa" [width]="400">
+    <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+    <kendo-dialog-actions>
+        <button kendoButton (click)="cancelDelete()">Hủy</button>
+        <button kendoButton themeColor="danger" (click)="confirmDelete()">Xóa</button>
+    </kendo-dialog-actions>
+</kendo-dialog>

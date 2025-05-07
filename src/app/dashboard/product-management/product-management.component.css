@@ -1,0 +1,12 @@
+.custom-file-upload {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.file-name {
+    color: #6b7280;
+    /* gray-500 */
+    font-size: 0.875rem;
+}
