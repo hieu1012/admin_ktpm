@@ -1,20 +1,65 @@
-<kendo-grid [data]="productss" [height]="550">
+<kendo-grid [data]="gridData" [height]="550" [filterable]="true" [filter]="filter"
+    (filterChange)="filterChange($event)">
     <ng-template kendoGridToolbarTemplate>
         <button class="bg-green-100 p-2 rounded-md " kendoButton (click)="onAddProduct()">Thêm sản phẩm</button>
     </ng-template>
-    <kendo-grid-column field="id" title="ID" [width]="50"></kendo-grid-column>
-    <kendo-grid-column field="name" title="Tên sản phẩm"></kendo-grid-column>
 
-    <kendo-grid-column field="price" title="Giá" [width]="150">
+    <!-- Giữ lại duy nhất cột này -->
+    <kendo-grid-column [width]="50" [headerClass]="'text-center'" [class]="'text-center'">
+        <!-- Header template với checkbox "Chọn tất cả" -->
+        <ng-template kendoGridHeaderTemplate>
+            <div class="flex justify-center items-center">
+                <input type="checkbox" kendoCheckBox [checked]="isAllSelected" (change)="toggleAllSelection($event)"
+                    class="select-all-checkbox" />
+            </div>
+        </ng-template>
+
+        <!-- Cell template với checkbox cho từng hàng -->
         <ng-template kendoGridCellTemplate let-dataItem>
-            {{ dataItem.price }} đ
+            <div class="flex justify-center items-center">
+                <input type="checkbox" kendoCheckBox [checked]="isItemSelected(dataItem)"
+                    (change)="toggleItemSelection(dataItem)" />
+            </div>
         </ng-template>
     </kendo-grid-column>
 
-    <kendo-grid-column field="shortDesc" title="Mô tả ngắn"></kendo-grid-column>
-    <kendo-grid-column field="quantity" title="Tồn kho" [width]="80"></kendo-grid-column>
-    <kendo-grid-column field="category.name" title="Danh mục"></kendo-grid-column>
-    <kendo-grid-column field="manufacture.name" title="Hãng sản xuất"></kendo-grid-column>
+    <kendo-grid-column title="STT" [width]="80">
+        <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+            {{ rowIndex + 1 }}
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="name" title="Tên sản phẩm" filter="text"></kendo-grid-column>
+    <kendo-grid-column field="shortDesc" title="Mô tả ngắn" filter="text"></kendo-grid-column>
+    <kendo-grid-column field="quantity" title="Tồn kho" [width]="140" filter="numeric"></kendo-grid-column>
+    <kendo-grid-column field="price" title="Giá" [width]="150" filter="numeric">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="text-right w-full">
+                {{ dataItem.price }} VNĐ
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <!-- <kendo-grid-column field="category.name" title="Danh mục" filter="text"></kendo-grid-column>
+    <kendo-grid-column field="manufacture.name" title="Hãng sản xuất" filter="text"></kendo-grid-column> -->
+    <!-- Cột Danh mục với bộ lọc dropdown -->
+    <kendo-grid-column field="category.name" title="Danh mục">
+        <ng-template kendoGridFilterCellTemplate let-filter>
+            <kendo-dropdownlist [data]="categorys" textField="name" valueField="name"
+                (valueChange)="categoryFilterChange($event, filter)"
+                [defaultItem]="{ name: 'Tất cả danh mục', id: null }" [valuePrimitive]="true">
+            </kendo-dropdownlist>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột Hãng sản xuất với bộ lọc dropdown -->
+    <kendo-grid-column field="manufacture.name" title="Hãng sản xuất">
+        <ng-template kendoGridFilterCellTemplate let-filter>
+            <kendo-dropdownlist [data]="manufactures" textField="name" valueField="name"
+                (valueChange)="manufactureFilterChange($event, filter)"
+                [defaultItem]="{ name: 'Tất cả hãng sản xuất', id: null }" [valuePrimitive]="true">
+            </kendo-dropdownlist>
+        </ng-template>
+    </kendo-grid-column>
+
 
     <kendo-grid-column title="Ảnh" [width]="100">
         <ng-template kendoGridCellTemplate let-dataItem>
@@ -33,62 +78,125 @@
     </kendo-grid-column>
 </kendo-grid>
 
-<!-- Modal -->
+<!-- Product Modal -->
 <kendo-dialog *ngIf="selectedProduct" (close)="onCancelProduct()" [title]="isNew ? 'Thêm sản phẩm' : 'Sửa sản phẩm'"
-    [width]="600">
-    <div class="dialog-form">
-        <label>
-            Tên sản phẩm:
-            <input kendoTextBox [(ngModel)]="selectedProduct.name" />
-        </label>
+    [width]="700" class="shadow-lg">
 
-        <label>
-            Giá:
-            <input kendoTextBox type="number" [(ngModel)]="selectedProduct.price" />
-        </label>
+    <div class="p-3">
+        <div class="mb-5">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Tên sản phẩm</label>
+            <input kendoTextBox class="w-full border rounded-md focus:ring-blue-500" [(ngModel)]="selectedProduct.name"
+                placeholder="Nhập tên sản phẩm" />
+        </div>
 
-        <label>
-            Mô tả ngắn:
-            <input kendoTextBox [(ngModel)]="selectedProduct.shortDesc" />
-        </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Giá (VNĐ)</label>
+                <kendo-numerictextbox class="w-full border rounded-md" [(ngModel)]="selectedProduct.price" [min]="0"
+                    [format]="'n0'" placeholder="Nhập giá sản phẩm">
+                </kendo-numerictextbox>
+            </div>
 
-        <label>
-            Tồn kho:
-            <input kendoTextBox type="number" [(ngModel)]="selectedProduct.quantity" />
-        </label>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Tồn kho</label>
+                <kendo-numerictextbox class="w-full border rounded-md" [(ngModel)]="selectedProduct.quantity" [min]="0"
+                    [format]="'n0'" [spinners]="true" placeholder="Nhập số lượng tồn kho">
+                </kendo-numerictextbox>
+            </div>
+        </div>
 
-        <label>
-            Ảnh:
-            <input type="file" (change)="onImageSelected($event)" />
-            <img *ngIf="selectedProduct.image" [src]="selectedProduct.image" alt="Preview" width="100" />
-        </label>
-        <br>
-        <br>
-        <label>
-            Danh mục:
-            <kendo-dropdownlist [data]="categorys" textField="name" valueField="id"
-                [(ngModel)]="selectedProduct.category">
-            </kendo-dropdownlist>
-        </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Danh mục</label>
+                <kendo-dropdownlist class="w-full border rounded-md" [data]="categorys" textField="name" valueField="id"
+                    [(ngModel)]="selectedProduct.category" placeholder="Chọn danh mục">
+                </kendo-dropdownlist>
+            </div>
 
-        <label>
-            Hãng sản xuất:
-            <kendo-dropdownlist [data]="manufactures" textField="name" valueField="id"
-                [(ngModel)]="selectedProduct.manufacture">
-            </kendo-dropdownlist>
-        </label>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Hãng sản xuất</label>
+                <kendo-dropdownlist class="w-full border rounded-md" [data]="manufactures" textField="name"
+                    valueField="id" [(ngModel)]="selectedProduct.manufacture" placeholder="Chọn hãng sản xuất">
+                </kendo-dropdownlist>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Mô tả ngắn</label>
+            <textarea kendoTextArea class="w-full border rounded-md" [(ngModel)]="selectedProduct.shortDesc"
+                placeholder="Nhập mô tả ngắn về sản phẩm" rows="3">
+            </textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Ảnh sản phẩm</label>
+
+            <div class="flex flex-col md:flex-row gap-4 items-start">
+                <!-- Image Preview -->
+                <div *ngIf="selectedProduct.image" class="relative">
+                    <img [src]="selectedProduct.image" alt="Preview"
+                        class="w-40 h-40 object-cover rounded border border-gray-200" />
+                    <button kendoButton look="flat" icon="x"
+                        class="absolute -top-2 -right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-md"
+                        (click)="removeImage()">
+                        x
+                    </button>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="flex-1 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
+                    [class.hidden]="selectedProduct.image">
+                    <input type="file" id="productImage" class="hidden" (change)="onImageSelected($event)"
+                        accept="image/*" />
+                    <label for="productImage" class="cursor-pointer text-center flex flex-col items-center">
+                        <span class="k-icon k-i-upload text-3xl text-gray-400 mb-2"></span>
+                        <span class="text-gray-500">Chọn ảnh</span>
+                        <span class="text-xs text-gray-400 mt-1">Kéo thả hoặc nhấp để chọn file</span>
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <kendo-dialog-actions>
-        <button kendoButton (click)="onCancelProduct()">Hủy</button>
-        <button kendoButton (click)="onSaveProduct(selectedProduct)">Lưu</button>
+    <kendo-dialog-actions class="p-4 bg-gray-50 border-t flex justify-end gap-2">
+        <button kendoButton class="text-gray-700 bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
+            (click)="onCancelProduct()">Hủy</button>
+        <button kendoButton class="bg-blue-600 text-white hover:bg-blue-700 p-2 rounded-[10px]"
+            (click)="onSaveProduct(selectedProduct)">
+            <span class="k-icon k-i-save mr-1"></span>
+            Lưu
+        </button>
     </kendo-dialog-actions>
 </kendo-dialog>
 
-<kendo-dialog *ngIf="showDeleteDialog" (close)="cancelDelete()" title="Xác nhận xóa" [width]="400">
-    <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
-    <kendo-dialog-actions>
-        <button kendoButton (click)="cancelDelete()">Hủy</button>
-        <button kendoButton themeColor="danger" (click)="confirmDelete()">Xóa</button>
+<!-- Delete Confirmation Modal -->
+<kendo-dialog *ngIf="showDeleteDialog" (close)="cancelDelete()" title="Xác nhận xóa" [width]="450" class="shadow-lg">
+
+    <div class="p-6 flex flex-col items-center">
+        <p class="text-gray-700 font-medium text-center mb-1">Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+        <p class="text-gray-500 text-sm text-center">Hành động này không thể hoàn tác.</p>
+    </div>
+
+    <kendo-dialog-actions class="p-4 bg-gray-50 border-t flex justify-end gap-2">
+        <button kendoButton class="text-gray-700  bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
+            (click)="cancelDelete()">Hủy</button>
+        <button kendoButton class="bg-red-600 text-white hover:bg-red-700 p-2 rounded-[10px]" (click)="confirmDelete()">
+            <span class="k-icon k-i-delete mr-1"></span>
+            Xóa
+        </button>
     </kendo-dialog-actions>
 </kendo-dialog>
+
+
+<a nz-dropdown [nzDropdownMenu]="menu">
+    Hover me
+    <nz-icon nzType="down" />
+</a>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu nzSelectable>
+        <li nz-menu-item>1st menu item</li>
+        <li nz-menu-item>2nd menu item</li>
+        <li nz-menu-item>3rd menu item</li>
+        <li nz-menu-item nzDanger>4th danger item</li>
+    </ul>
+</nz-dropdown-menu>

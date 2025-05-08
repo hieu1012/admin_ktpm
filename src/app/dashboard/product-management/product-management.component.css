@@ -10,3 +10,7 @@
     /* gray-500 */
     font-size: 0.875rem;
 }
+
+.k-grid .k-checkbox {
+    border: 2px solid #555 !important;
+}

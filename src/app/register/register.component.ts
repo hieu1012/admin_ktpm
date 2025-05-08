@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -12,12 +13,19 @@ import { Router, RouterModule } from '@angular/router';
 export class RegisterComponent {
   name: string = '';
   email: string = '';
-  password: string = '';
+  password: string = '12345678';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
   onRegister() {
-    console.log('Register', { name: this.name, email: this.email, password: this.password });
-    this.router.navigate(['/login']);
+    this.authService.register(this.email, this.password, this.name).subscribe({
+      next: (response) => {
+        console.log('Đăng ký thành công:', response);
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Lỗi khi đăng ký:', error);
+      }
+    });
   }
 }

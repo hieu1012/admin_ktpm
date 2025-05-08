@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -9,14 +11,19 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
-  email: string = '';
-  password: string = '';
+export class LoginComponent implements OnInit {
+  email: string = 'daotaohieu13@gmail.com';
+  password: string = '12345678';
 
-  constructor(private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private userService: UserService) { }
+
+  ngOnInit(): void {
+    // console.log('Thông tin đăng nhập', { email: this.email, password: this.password });
+    // this.authService.login(this.email, this.password)
+  }
+
 
   onLogin() {
-    console.log('Login', { email: this.email, password: this.password });
-    this.router.navigate(['/dashboard']);
+    this.authService.login(this.email, this.password);
   }
 }
