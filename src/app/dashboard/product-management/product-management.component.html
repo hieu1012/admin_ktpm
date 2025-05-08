@@ -34,7 +34,7 @@
     <kendo-grid-column field="price" title="Giá" [width]="150" filter="numeric">
         <ng-template kendoGridCellTemplate let-dataItem>
             <div class="text-right w-full">
-                {{ dataItem.price }} VNĐ
+                {{ dataItem.price| priceFormat }}
             </div>
         </ng-template>
     </kendo-grid-column>

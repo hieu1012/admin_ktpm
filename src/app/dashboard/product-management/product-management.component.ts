@@ -7,17 +7,19 @@ import { DialogModule } from '@progress/kendo-angular-dialog';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
 import { NgIf } from '@angular/common';
-import { ProductService } from '../../services/product.service';
-import { CategoryService } from '../../services/category.service';
-import { ManufactureService } from '../../services/manufacture.service';
+import { ProductService } from '../../core/services/product.service';
+import { CategoryService } from '../../core/services/category.service';
+import { ManufactureService } from '../../core/services/manufacture.service';
 import { CompositeFilterDescriptor, filterBy } from '@progress/kendo-data-query';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { PriceFormatPipe } from '../../core/pipes/price-format.pipe';
+import { UppercasePipe } from '../../core/pipes/uppercase.pipe';
 
 
 @Component({
   selector: 'app-product-management',
-  imports: [KENDO_GRID, FormsModule, GridModule, DialogModule, InputsModule, DropDownsModule, NgIf, NzDropDownModule, NzIconModule],
+  imports: [KENDO_GRID, FormsModule, GridModule, DialogModule, InputsModule, DropDownsModule, NgIf, NzDropDownModule, UppercasePipe, PriceFormatPipe, NzIconModule],
   templateUrl: './product-management.component.html',
   styleUrl: './product-management.component.css'
 })

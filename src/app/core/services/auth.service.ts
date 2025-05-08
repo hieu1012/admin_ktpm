@@ -10,6 +10,7 @@ import { UserService } from './user.service';
 })
 export class AuthService {
     private apiLogin = '/auth/login';
+    // private apiLogin = 'http://localhost:8081/auth/login';
     private apiRegister = '/auth/register';
     private apiUser = '/me';
 
