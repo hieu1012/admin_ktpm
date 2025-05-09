@@ -1,6 +1,6 @@
 
 import { Component, ViewChild, OnInit } from '@angular/core';
-import { KENDO_GRID } from "@progress/kendo-angular-grid";
+import { KENDO_GRID, KENDO_GRID_EXCEL_EXPORT } from "@progress/kendo-angular-grid";
 import { FormsModule } from '@angular/forms';
 import { GridModule } from '@progress/kendo-angular-grid';
 import { DialogModule } from '@progress/kendo-angular-dialog';
@@ -15,11 +15,18 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { PriceFormatPipe } from '../../core/pipes/price-format.pipe';
 import { UppercasePipe } from '../../core/pipes/uppercase.pipe';
+import { fileExcelIcon, SVGIcon } from "@progress/kendo-svg-icons";
+import {
+  aggregateBy,
+  AggregateDescriptor,
+  AggregateResult,
+  GroupDescriptor,
+} from "@progress/kendo-data-query";
 
 
 @Component({
   selector: 'app-product-management',
-  imports: [KENDO_GRID, FormsModule, GridModule, DialogModule, InputsModule, DropDownsModule, NgIf, NzDropDownModule, UppercasePipe, PriceFormatPipe, NzIconModule],
+  imports: [KENDO_GRID, FormsModule, GridModule, DialogModule, InputsModule, KENDO_GRID_EXCEL_EXPORT, DropDownsModule, NgIf, NzDropDownModule, UppercasePipe, PriceFormatPipe, NzIconModule],
   templateUrl: './product-management.component.html',
   styleUrl: './product-management.component.css'
 })
@@ -92,7 +99,7 @@ export class ProductManagementComponent implements OnInit {
     this.isNew = true;
     this.selectedProduct = {
       name: '',
-      price: 0,
+      price: 1000,
       shortDesc: '',
       detailDesc: '',
       quantity: 0,
@@ -232,8 +239,6 @@ export class ProductManagementComponent implements OnInit {
         value: value
       });
     }
-
-    // Áp dụng bộ lọc
     this.gridData = filterBy(this.productss, this.filter);
   }
 
@@ -273,6 +278,115 @@ export class ProductManagementComponent implements OnInit {
       this.selectedItems.splice(index, 1);
     }
   }
+
+  // =================== Các biến để quản lý xóa nhiều sản phẩm =========================
+  showBulkDeleteDialog: boolean = false;
+  isDeleting: boolean = false;
+  deleteProgress: number = 0;
+  successCount: number = 0;
+  failCount: number = 0;
+
+  // Mở dialog xóa nhiều sản phẩm 
+  openBulkDeleteDialog(): void {
+    if (this.selectedItems.length === 0) return;
+
+    this.showBulkDeleteDialog = true;
+    this.resetDeleteStatus();
+  }
+
+  // Xóa nhiều sản phẩm tuần tự
+  bulkDeleteProducts(): void {
+    if (this.selectedItems.length === 0) {
+      this.closeBulkDeleteDialog();
+      return;
+    }
+
+    this.isDeleting = true;
+    this.resetDeleteStatus();
+
+    // Clone mảng để không ảnh hưởng mảng gốc
+    const itemsToDelete = [...this.selectedItems];
+    this.processDeleteQueue(itemsToDelete);
+  }
+
+  // Xử lý hàng đợi xóa
+  private processDeleteQueue(queue: string[]): void {
+    if (queue.length === 0) {
+      this.completeDelete();
+      return;
+    }
+
+    const currentId = queue[0];
+    const remaining = queue.slice(1);
+
+    this.productService.deleteProduct(currentId).subscribe({
+      next: () => this.handleDeleteSuccess(remaining),
+      error: (err) => this.handleDeleteError(err, currentId, remaining)
+    });
+  }
+
+  // Xử lý khi xóa thành công
+  private handleDeleteSuccess(remaining: string[]): void {
+    this.successCount++;
+    this.updateProgress();
+    this.processDeleteQueue(remaining);
+  }
+
+  // Xử lý khi xóa thất bại
+  private handleDeleteError(error: any, itemId: string, remaining: string[]): void {
+    console.error(`Không thể xóa sản phẩm ID: ${itemId}`, error);
+    this.failCount++;
+    this.updateProgress();
+    this.processDeleteQueue(remaining);
+  }
+
+  // Cập nhật tiến trình
+  private updateProgress(): void {
+    const total = this.selectedItems.length;
+    const processed = this.successCount + this.failCount;
+    this.deleteProgress = Math.round((processed / total) * 100);
+  }
+
+  // Reset trạng thái xóa
+  private resetDeleteStatus(): void {
+    this.deleteProgress = 0;
+    this.successCount = 0;
+    this.failCount = 0;
+  }
+
+  // Hoàn tất quá trình xóa
+  private completeDelete(): void {
+    this.isDeleting = false;
+    this.loadData();
+  }
+
+  // Đóng dialog xóa nhiều
+  closeBulkDeleteDialog(): void {
+    this.showBulkDeleteDialog = false;
+    this.isDeleting = false;
+
+    if (this.successCount > 0) {
+      this.selectedItems = [];
+    }
+  }
+
+
+  // =================== Xuất Excel =========================
+  public fileExcelIcon: SVGIcon = fileExcelIcon;
+
+  public aggregates: AggregateDescriptor[] = [
+    { field: "UnitPrice", aggregate: "sum" },
+  ];
+
+  public products: any[] = this.productss;
+  public total: AggregateResult = aggregateBy(this.products, this.aggregates);
+  public group: GroupDescriptor[] = [
+    {
+      field: "Discontinued",
+      aggregates: this.aggregates,
+    },
+  ];
+
 
 }
 
