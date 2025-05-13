@@ -1,8 +1,6 @@
-<kendo-grid [data]="gridData" [height]="550" [filterable]="true" [filter]="filter"
-    (filterChange)="filterChange($event)">
-    <!-- Thêm phần khai báo Excel Export -->
+<kendo-grid [data]="gridData" [height]="550">
+    <!-- Xuất Excel -->
     <kendo-grid-excel fileName="Products.xlsx">
-        <!-- Xác định các cột sẽ được xuất ra Excel -->
         <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
         <kendo-excelexport-column field="name" title="Tên sản phẩm"></kendo-excelexport-column>
         <kendo-excelexport-column field="shortDesc" title="Mô tả ngắn"></kendo-excelexport-column>
@@ -12,110 +10,167 @@
         <kendo-excelexport-column field="category.name" title="Danh mục"></kendo-excelexport-column>
         <kendo-excelexport-column field="manufacture.name" title="Hãng sản xuất"></kendo-excelexport-column>
     </kendo-grid-excel>
+
+    <!-- Toolbar -->
     <ng-template kendoGridToolbarTemplate>
-        <div class="flex justify-between items-center w-full p-2">
-            <div class="flex items-center gap-2">
-                <button kendoButton class=" k-button-md k-rounded-md bg-green-200 cursor-pointer"
-                    (click)="onAddProduct()">
-                    <span class="k-button-text">+ Thêm sản phẩm</span>
-                </button>
-                <button kendoButton class="k-button-md k-rounded-md bg-red-200 cursor-pointer"
-                    [disabled]="selectedItems.length === 0" (click)="openBulkDeleteDialog()">
-                    <span class="k-button-text">Xóa các mục đã chọn ({{selectedItems.length}})</span>
-                </button>
-                <button type="button" kendoGridExcelCommand [svgIcon]="fileExcelIcon" class="">
+        <div class="flex justify-between items-center w-full p-2 font-medium text-[14px]">
+            <div class="flex justify-between  w-full">
+                <div class="flex items-center gap-2 ">
+                    <button kendoButton class="k-button-md k-rounded-md bg-green-200 cursor-pointer"
+                        (click)="onAddProduct()">
+                        + Thêm sản phẩm</button>
+                    <button kendoButton
+                        class="k-button-md k-rounded-md bg-blue-100 flex items-center gap-1 cursor-pointer">
+                        <div nz-dropdown [nzDropdownMenu]="advancedSearchMenu" nzTrigger="click"
+                            nzOverlayClassName="advanced-search-dropdown" nzPlacement="bottomLeft">
+                            <nz-icon nzType="search" nzTheme="outline" />
+                            Tìm kiếm
+                        </div>
+                    </button>
+
+                    <!-- Nút xóa nhiều sản phẩm - hiển thị chỉ khi có mục được chọn -->
+                    <ng-container *ngIf="selectedItems.length > 0">
+                        <button kendoButton
+                            class="k-button-md k-rounded-md bg-red-200 flex items-center gap-1 cursor-pointer"
+                            (click)="openBulkDeleteDialog()">
+                            <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+                            Xóa các mục đã chọn ({{selectedItems.length}})
+                        </button>
+                    </ng-container>
+                </div>
+                <button kendoGridExcelCommand class="k-button-md k-rounded-md bg-blue-200 ">
                     Export to Excel
                 </button>
             </div>
         </div>
     </ng-template>
 
-    <kendo-grid-column [width]="50" [headerClass]="'text-center'" [class]="'text-center'">
-        <!-- Header template với checkbox "Chọn tất cả" -->
+    <!-- Cột checkbox chọn -->
+    <kendo-grid-column [width]="50" [headerClass]="'center-checkbox-column'" [class]="'center-checkbox-column'">
         <ng-template kendoGridHeaderTemplate>
             <div class="flex items-center justify-center">
                 <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection($event)"
-                    class="h-4 w-4 cursor-pointer" />
+                    class="h-4 w-4" />
             </div>
         </ng-template>
         <ng-template kendoGridCellTemplate let-dataItem>
             <div class="flex items-center justify-center">
                 <input type="checkbox" [checked]="isItemSelected(dataItem)" (change)="toggleItemSelection(dataItem)"
-                    class="h-4 w-4 cursor-pointer" />
+                    class="h-4 w-4" />
             </div>
         </ng-template>
     </kendo-grid-column>
 
-    <kendo-grid-column title="STT" [width]="80">
-        <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
-            {{ rowIndex + 1 }}
-        </ng-template>
-    </kendo-grid-column>
-    <kendo-grid-column field="name" title="Tên sản phẩm" filter="text"></kendo-grid-column>
-    <kendo-grid-column field="shortDesc" title="Mô tả ngắn" filter="text"></kendo-grid-column>
-    <kendo-grid-column field="quantity" title="Tồn kho" [width]="140" filter="numeric"></kendo-grid-column>
-    <kendo-grid-column field="price" title="Giá" [width]="150" filter="numeric">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <div class="text-right w-full">
-                {{ dataItem.price| priceFormat }}
-            </div>
-        </ng-template>
-    </kendo-grid-column>
-    <kendo-grid-column field="category.name" title="Danh mục">
-        <ng-template kendoGridFilterCellTemplate let-filter>
-            <kendo-dropdownlist [data]="categorys" textField="name" valueField="name"
-                (valueChange)="categoryFilterChange($event, filter)"
-                [defaultItem]="{ name: 'Tất cả danh mục', id: null }" [valuePrimitive]="true">
-            </kendo-dropdownlist>
-        </ng-template>
-    </kendo-grid-column>
-    <kendo-grid-column field="manufacture.name" title="Hãng sản xuất">
-        <ng-template kendoGridFilterCellTemplate let-filter>
-            <kendo-dropdownlist [data]="manufactures" textField="name" valueField="name"
-                (valueChange)="manufactureFilterChange($event, filter)"
-                [defaultItem]="{ name: 'Tất cả hãng sản xuất', id: null }" [valuePrimitive]="true">
-            </kendo-dropdownlist>
-        </ng-template>
-    </kendo-grid-column>
-
-
-    <kendo-grid-column title="Ảnh" [width]="100">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <div class="w-auto h-[80px]  flex items-center justify-center">
-                <img [src]="dataItem.image" alt="{{ dataItem.name }}" height="100%" />
-            </div>
-        </ng-template>
-    </kendo-grid-column>
-
+    <!-- Cột hành động -->
     <kendo-grid-column title="Hành động" [width]="110">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Hành động
+            </div>
+        </ng-template>
         <ng-template kendoGridCellTemplate let-dataItem>
             <div class="flex justify-center items-center">
-                <a nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomCenter'"
-                    class="cursor-pointer p-2 rounded-full hover:bg-gray-300 transition-colors duration-200">
-                    <nz-icon nzType="bars" nzTheme="outline" class="text-gray-600 text-lg" />
+                <a nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomCenter"
+                    class="cursor-pointer p-2 rounded-full hover:bg-gray-300">
+                    <nz-icon nzType="bars" nzTheme="outline"></nz-icon>
                 </a>
                 <nz-dropdown-menu #menu="nzDropdownMenu">
-                    <ul nz-menu nzSelectable class="py-1 shadow-lg rounded-md min-w-[110px] bg-white ">
-                        <li class="hover:bg-blue-300 p-2 cursor-pointer " nz-menu-item
+                    <ul nz-menu class="py-1 shadow-lg rounded-md min-w-[110px] bg-white">
+                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer"
                             (click)="onEditProduct(dataItem)">
-                            <div class="flex items-center gap-2 px-1">
-                                <nz-icon nzType="edit" nzTheme="outline" class="text-blue-500" />
-                                <span class="text-sm font-normal">Chỉnh sửa</span>
+                            <div class="flex items-center">
+                                <nz-icon nzType="edit" nzTheme="outline" class="!text-blue-500 mr-2"></nz-icon>
+                                <span>Chỉnh sửa</span>
                             </div>
                         </li>
-                        <li class="hover:bg-red-300 p-2 cursor-pointer" nz-menu-item
+                        <li nz-menu-item class="hover:bg-red-300 p-2 text-[14px] cursor-pointer"
                             (click)="openDeleteDialog(dataItem.id)">
-                            <div class="flex items-center gap-2 px-1">
-                                <nz-icon nzType="delete" nzTheme="outline" class="text-red-500" />
-                                <span class="text-sm font-normal">Xóa</span>
+                            <div class="flex items-center">
+                                <nz-icon nzType="delete" nzTheme="outline" class="!text-red-500 mr-2"></nz-icon>
+                                <span>Xóa</span>
                             </div>
                         </li>
                     </ul>
                 </nz-dropdown-menu>
+
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột STT -->
+    <kendo-grid-column [width]="80">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="w-full text-center font-semibold text-[15px]">STT</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+            <div class="flex items-center justify-center ">
+                {{ rowIndex + 1 }}
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Các cột dữ liệu -->
+    <kendo-grid-column field="name" title="Tên sản phẩm">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Tên sản phẩm
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="shortDesc" title="Mô tả ngắn">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Mô tả ngắn
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="quantity" title="Tồn kho" [width]="140">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Tồn kho
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="price" [width]="150">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="w-full text-right font-semibold text-[15px]">Giá</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="text-right w-full">
+                {{ dataItem.price | priceFormat }}
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="category.name" title="Danh mục">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Danh mục
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="manufacture.name" title="Hãng sản xuất">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Hãng sản xuất
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột ảnh -->
+    <kendo-grid-column title="Ảnh" [width]="100">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Ảnh
+            </div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="flex items-center justify-center h-[80px]">
+                <img [src]="dataItem.image" alt="{{ dataItem.name }}" class="object-contain h-full" />
             </div>
         </ng-template>
     </kendo-grid-column>
 </kendo-grid>
+
 
 <!-- Product Modal -->
 <kendo-dialog *ngIf="selectedProduct" (close)="onCancelProduct()" [title]="isNew ? 'Thêm sản phẩm' : 'Sửa sản phẩm'"
@@ -197,7 +252,7 @@
     <kendo-dialog-actions class="p-4 bg-gray-50 border-t flex justify-end gap-2">
         <button kendoButton class="text-gray-700 bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
             (click)="onCancelProduct()">Hủy</button>
-        <button kendoButton class="bg-blue-600 text-white hover:bg-blue-700 p-2 rounded-[10px]"
+        <button kendoButton class="bg-blue-600 !text-white hover:bg-blue-700 p-2 rounded-[10px]"
             (click)="onSaveProduct(selectedProduct)">
             <span class="k-icon k-i-save mr-1"></span>
             Lưu
@@ -216,7 +271,8 @@
     <kendo-dialog-actions class="p-4 bg-gray-50 border-t flex justify-end gap-2">
         <button kendoButton class="text-gray-700  bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
             (click)="cancelDelete()">Hủy</button>
-        <button kendoButton class="bg-red-600 text-white hover:bg-red-700 p-2 rounded-[10px]" (click)="confirmDelete()">
+        <button kendoButton class="bg-red-600 !text-white hover:bg-red-700 p-2 rounded-[10px]"
+            (click)="confirmDelete()">
             <span class="k-icon k-i-delete mr-1"></span>
             Xóa
         </button>
@@ -269,3 +325,81 @@
         </ng-container>
     </kendo-dialog-actions>
 </kendo-dialog>
+
+
+<nz-dropdown-menu #advancedSearchMenu="nzDropdownMenu" class="">
+    <!-- Title -->
+    <div class="text-[16px] font-medium pb-2 border-b border-gray-300">
+        Tìm kiếm nâng cao
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+        <div>
+            <label class="text-sm block mb-1">Tên sản phẩm</label>
+            <input nz-input [(ngModel)]="searchCriteria.name" placeholder="Nhập tên sản phẩm" />
+        </div>
+
+        <div>
+            <label class="text-sm block mb-1">Danh mục</label>
+            <nz-select [(ngModel)]="searchCriteria.categoryId" nzPlaceHolder="Chọn danh mục" [nzAllowClear]="true"
+                class="w-full">
+                <nz-option *ngFor="let cat of categorys" [nzValue]="cat.id" [nzLabel]="cat.name"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+            <label class="text-sm block mb-1">Hãng sản xuất</label>
+            <nz-select [(ngModel)]="searchCriteria.manufactureId" nzPlaceHolder="Chọn hãng" [nzAllowClear]="true"
+                class="w-full">
+                <nz-option *ngFor="let manu of manufactures" [nzValue]="manu.id" [nzLabel]="manu.name"></nz-option>
+            </nz-select>
+        </div>
+
+        <div>
+            <label class="text-sm block mb-1">Tồn kho</label>
+            <nz-input-number [(ngModel)]="searchCriteria.quantity" [nzMin]="0" [nzStep]="1" class="w-full"
+                [nzParser]="priceParser">
+            </nz-input-number>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+            <label class="text-sm block mb-1">Giá từ (VNĐ)</label>
+            <nz-row nzGutter="8">
+                <nz-col nzSpan="16">
+                    <nz-slider [(ngModel)]="searchCriteria.minPrice" [nzMin]="0" [nzMax]="1000000"
+                        [nzStep]="50000"></nz-slider>
+                </nz-col>
+                <nz-col nzSpan="8">
+                    <nz-input-number [(ngModel)]="searchCriteria.minPrice" [nzMin]="0" [nzMax]="1000000"
+                        [nzStep]="50000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
+                    </nz-input-number>
+                </nz-col>
+            </nz-row>
+        </div>
+
+        <div>
+            <label class="text-sm block mb-1">Giá đến (VNĐ)</label>
+            <nz-row nzGutter="8">
+                <nz-col nzSpan="16">
+                    <nz-slider [(ngModel)]="searchCriteria.maxPrice" [nzMin]="0" [nzMax]="1000000"
+                        [nzStep]="50000"></nz-slider>
+                </nz-col>
+                <nz-col nzSpan="8">
+                    <nz-input-number [(ngModel)]="searchCriteria.maxPrice" [nzMin]="0" [nzMax]="1000000"
+                        [nzStep]="50000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
+                    </nz-input-number>
+                </nz-col>
+            </nz-row>
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2 border-t border-gray-300 mt-4">
+        <button nz-button (click)="resetSearchCriteria()">Xóa bộ lọc</button>
+        <button nz-button nzType="primary" (click)="applySearch()">Tìm kiếm</button>
+    </div>
+</nz-dropdown-menu>

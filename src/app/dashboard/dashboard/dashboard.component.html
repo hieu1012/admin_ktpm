@@ -1,13 +1,9 @@
-<div class="flex min-h-screen bg-gray-100">
-    <!-- Sidebar -->
+<!-- <div class="flex min-h-screen bg-gray-100">
     <aside class="w-64 bg-slate-900 text-white shadow-lg flex flex-col">
-        <!-- Logo and branding -->
         <div class=" border-b border-slate-700 flex items-center space-x-3 justify-center pr-5">
             <img src="assets/logo.png" alt="Chill Guys Logo" class="h-25 w-auto">
-            <!-- <h1 class="text-xl font-medium text-white">Chill Guys</h1> -->
         </div>
 
-        <!-- Navigation -->
         <nav class="flex-1 py-6 px-4">
             <p class="text-xs uppercase text-slate-400 font-semibold mb-4 tracking-wider">Quản lý</p>
             <div class="space-y-2">
@@ -38,7 +34,6 @@
             </div>
         </nav>
 
-        <!-- User info -->
         <div class="p-4 border-t border-slate-700 flex items-center">
             <div class="w-10 h-10 rounded-full bg-sky-600 flex items-center justify-center mr-3">
                 <span class="text-lg font-semibold">A</span>
@@ -50,12 +45,10 @@
         </div>
     </aside>
 
-    <!-- Main content -->
     <div class="flex-1 flex flex-col">
         <header class="bg-white shadow-sm p-4 flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-800">Bảng điều khiển</h2>
 
-            <!-- Header actions -->
             <div class="flex items-center space-x-4">
                 <button class="p-2 rounded-full hover:bg-gray-100">
                     <i class="fas fa-bell text-gray-600"></i>
@@ -76,5 +69,85 @@
             <router-outlet></router-outlet>
         </main>
 
+    </div>
+</div> -->
+
+<!-- app.component.html -->
+<div class="!flex !min-h-screen !bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="!w-64 !bg-slate-900 !text-white !shadow-lg !flex !flex-col">
+        <!-- Logo and branding -->
+        <div class="!border-b !border-slate-700 !flex !items-center !space-x-3 !justify-center !pr-5">
+            <img src="assets/logo.png" alt="Chill Guys Logo" class="!h-25 !w-auto">
+        </div>
+
+        <!-- Navigation -->
+        <nav class="!flex-1 !py-6 !px-4 ">
+            <p class="!text-xs !uppercase !text-slate-400 !font-semibold !mb-4 !tracking-wider">Quản lý</p>
+            <div class="!space-y-2 ">
+                <a routerLink="products" routerLinkActive="!bg-slate-800"
+                    class="!flex !items-center !px-4 !py-3 !rounded-lg hover:!bg-slate-800 !transition-colors">
+                    <i class="fas fa-box !mr-3 !text-sky-400"></i>
+                    <span class="!text-white !text-[14px] ">Sản phẩm</span>
+                </a>
+                <a routerLink="users" routerLinkActive="!bg-slate-800"
+                    class="!flex !items-center !px-4 !py-3 !rounded-lg hover:!bg-slate-800 !transition-colors">
+                    <i class="fas fa-users !mr-3 !text-sky-400"></i>
+                    <span class="!text-white !text-[14px] ">Người dùng</span>
+                </a>
+                <a routerLink="orders" routerLinkActive="!bg-slate-800"
+                    class="!flex !items-center !px-4 !py-3 !rounded-lg hover:!bg-slate-800 !transition-colors">
+                    <i class="fas fa-shopping-cart !mr-3 !text-sky-400"></i>
+                    <span class="!text-white !text-[14px] ">Đơn hàng</span>
+                </a>
+            </div>
+
+            <p class="!text-xs !uppercase !text-slate-400 !font-semibold !mt-8 !mb-4 !tracking-wider">Hệ thống</p>
+            <div class="!space-y-2">
+                <a routerLink="settings" routerLinkActive="!bg-slate-800"
+                    class="!flex !items-center !px-4 !py-3 !rounded-lg hover:!bg-slate-800 !transition-colors">
+                    <i class="fas fa-cog !mr-3 !text-sky-400"></i>
+                    <span class="!text-white !text-[14px] ">Cài đặt</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- User info -->
+        <div class="!p-4 !border-t !border-slate-700 !flex !items-center  ">
+            <div class="!w-10 !h-10 !rounded-full !bg-sky-600 !flex !items-center !justify-center !mr-3">
+                <span class="!text-lg !font-semibold">A</span>
+            </div>
+            <div class="!flex !flex-col">
+                <p class="!font-medium !text-white">{{user.fullName}}</p>
+                <p class="!text-xs !text-slate-400">Quản trị viên</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="!flex-1 !flex !flex-col">
+        <header class="!bg-white !shadow-sm !p-4 !flex !justify-between !items-center">
+            <h2 class="!text-xl !font-bold !text-gray-800">Bảng điều khiển</h2>
+
+            <!-- Header actions -->
+            <div class="!flex !items-center !space-x-4">
+                <button class="!p-2 !rounded-full hover:!bg-gray-100">
+                    <i class="fas fa-bell !text-gray-600"></i>
+                </button>
+                <button class="!p-2 !rounded-full hover:!bg-gray-100">
+                    <i class="fas fa-cog !text-gray-600"></i>
+                </button>
+                <div class="!h-8 !w-px !bg-gray-300"></div>
+                <button (click)="onLogout()"
+                    class="!flex !items-center !space-x-2 !text-red-600 hover:!text-red-800 !cursor-pointer">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="!p-6 !flex-1 !bg-gray-50">
+            <router-outlet></router-outlet>
+        </main>
     </div>
 </div>
