@@ -1,4 +1,5 @@
-<kendo-grid [data]="gridData" [height]="550">
+<kendo-grid [kendoGridBinding]="gridData" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
+    (pageChange)="pageChange($event)">
     <!-- Xuất Excel -->
     <kendo-grid-excel fileName="Products.xlsx">
         <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
@@ -39,7 +40,7 @@
                     </ng-container>
                 </div>
                 <button kendoGridExcelCommand class="k-button-md k-rounded-md bg-blue-200 ">
-                    Export to Excel
+                    <nz-icon nzType="export" nzTheme="outline" />
                 </button>
             </div>
         </div>
@@ -164,7 +165,7 @@
             </div>
         </ng-template>
         <ng-template kendoGridCellTemplate let-dataItem>
-            <div class="flex items-center justify-center h-[80px]">
+            <div class="flex items-center justify-center h-[70px]">
                 <img [src]="dataItem.image" alt="{{ dataItem.name }}" class="object-contain h-full" />
             </div>
         </ng-template>

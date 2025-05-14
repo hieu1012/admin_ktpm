@@ -1,1 +1,153 @@
-<p>user-management works!</p>
+<kendo-grid [kendoGridBinding]="listUsers">
+    <!-- Xuất Excel -->
+    <kendo-grid-excel fileName="Users.xlsx">
+        <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
+        <kendo-excelexport-column field="name" title="Tên người dùng"></kendo-excelexport-column>
+        <kendo-excelexport-column field="email" title="Email"></kendo-excelexport-column>
+        <kendo-excelexport-column field="phone" title="Số điện thoại"></kendo-excelexport-column>
+        <kendo-excelexport-column field="totalOrders" title="Số đơn hàng"></kendo-excelexport-column>
+        <kendo-excelexport-column field="status" title="Trạng thái"></kendo-excelexport-column>
+        <kendo-excelexport-column field="role" title="Quyền"></kendo-excelexport-column>
+    </kendo-grid-excel>
+
+    <!-- Toolbar -->
+    <ng-template kendoGridToolbarTemplate>
+        <div class="flex justify-between items-center w-full p-2 font-medium text-[14px]">
+            <div class="flex justify-between  w-full">
+                <div class="flex items-center gap-2 ">
+                    <button kendoButton class="k-button-md k-rounded-md bg-green-200 cursor-pointer"
+                        (click)="openUserForm()">
+                        + Thêm sản phẩm</button>
+                    <!-- <button kendoButton
+                        class="k-button-md k-rounded-md bg-blue-100 flex items-center gap-1 cursor-pointer">
+                        <div nz-dropdown [nzDropdownMenu]="advancedSearchMenu" nzTrigger="click"
+                            nzOverlayClassName="advanced-search-dropdown" nzPlacement="bottomLeft">
+                            <nz-icon nzType="search" nzTheme="outline" />
+                            Tìm kiếm
+                        </div>
+                    </button> -->
+
+                    <!-- Nút xóa nhiều sản phẩm - hiển thị chỉ khi có mục được chọn -->
+                    <!-- <ng-container *ngIf="selectedItems.length > 0">
+                        <button kendoButton
+                            class="k-button-md k-rounded-md bg-red-200 flex items-center gap-1 cursor-pointer"
+                            (click)="openBulkDeleteDialog()">
+                            <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+                            Xóa các mục đã chọn ({{selectedItems.length}})
+                        </button>
+                    </ng-container> -->
+                </div>
+                <button kendoGridExcelCommand class="k-button-md k-rounded-md bg-blue-200 ">
+                    <nz-icon nzType="export" nzTheme="outline" />
+                </button>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Cột checkbox chọn -->
+    <kendo-grid-column [width]="50" [headerClass]="'center-checkbox-column'" [class]="'center-checkbox-column'">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="flex items-center justify-center">
+                <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection($event)"
+                    class="h-4 w-4" />
+            </div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="flex items-center justify-center">
+                <input type="checkbox" [checked]="isItemSelected(dataItem)" (change)="toggleItemSelection(dataItem)"
+                    class="h-4 w-4" />
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột hành động -->
+    <kendo-grid-column title="Hành động" [width]="110">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Hành động
+            </div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="flex justify-center items-center">
+                <a nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomCenter"
+                    class="cursor-pointer p-2 rounded-full hover:bg-gray-300">
+                    <nz-icon nzType="bars" nzTheme="outline"></nz-icon>
+                </a>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                    <ul nz-menu class="py-1 shadow-lg rounded-md min-w-[110px] bg-white">
+                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer">
+                            <div class="flex items-center">
+                                <nz-icon nzType="edit" nzTheme="outline" class="!text-blue-500 mr-2"></nz-icon>
+                                <span>Chỉnh sửa</span>
+                            </div>
+                        </li>
+                        <li nz-menu-item class="hover:bg-red-300 p-2 text-[14px] cursor-pointer">
+                            <div class="flex items-center">
+                                <nz-icon nzType="delete" nzTheme="outline" class="!text-red-500 mr-2"></nz-icon>
+                                <span>Xóa</span>
+                            </div>
+                        </li>
+                    </ul>
+                </nz-dropdown-menu>
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột STT -->
+    <kendo-grid-column [width]="80">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="w-full text-center font-semibold text-[15px]">STT</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+            <div class="flex items-center justify-center ">
+                {{ rowIndex + 1 }}
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <!-- Các cột dữ liệu -->
+    <kendo-grid-column field="name" title="Tên người dùng">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Tên người dùng
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="email">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Email
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="phone" title="phone">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Số điện thoại
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="totalOrders" title="totalOrders">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Tổng số đơn hàng
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="status" title="status">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Trạng thái
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+    <kendo-grid-column field="role" title="role" [width]="100">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Quyền
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+</kendo-grid>
+
+<app-user-form [isVisible]="isUserFormVisible" (modalClosed)="onModalClosed()"
+    (userSaved)="onUserSaved($event)"></app-user-form>

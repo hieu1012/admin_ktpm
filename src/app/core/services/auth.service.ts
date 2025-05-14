@@ -35,7 +35,7 @@ export class AuthService {
                             // console.log('Thông tin người dùng:', user.data);
                             localStorage.setItem('user', JSON.stringify(user.data));
                             console.log('Thông tin user đã được lưu trữ', localStorage.getItem('user'));
-                            this.router.navigate(['/dashboard']);
+                            this.router.navigate(['/dashboard/products']);
                         },
                         error: (error) => {
                             console.error('Lỗi khi lấy thông tin người dùng:', error);

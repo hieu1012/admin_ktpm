@@ -1,0 +1,3 @@
+::ng-deep .k-grid .center-checkbox-column .k-cell-inner {
+    justify-content: center !important;
+}

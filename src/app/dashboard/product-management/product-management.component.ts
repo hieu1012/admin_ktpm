@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { KENDO_GRID, KENDO_GRID_EXCEL_EXPORT } from "@progress/kendo-angular-grid";
 import { FormsModule } from '@angular/forms';
-import { GridModule } from '@progress/kendo-angular-grid';
+import { GridModule, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { DialogModule } from '@progress/kendo-angular-dialog';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NgIf, NgFor } from '@angular/common';
@@ -24,9 +24,13 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 
+
+
 @Component({
   selector: 'app-product-management',
-  imports: [KENDO_GRID, NzButtonModule, NzSelectModule, NgFor, NzInputModule, NzInputModule, FormsModule, GridModule, DialogModule, InputsModule, KENDO_GRID_EXCEL_EXPORT, DropDownsModule, NgIf, UppercasePipe, PriceFormatPipe, NzIconModule, NzSliderModule, NzGridModule, NzInputNumberModule, NzDropDownModule],
+  imports: [NzButtonModule, NzSelectModule, NgFor, NzInputModule, NzInputModule, FormsModule, GridModule, DialogModule, InputsModule, KENDO_GRID_EXCEL_EXPORT, DropDownsModule, NgIf, PriceFormatPipe, NzSliderModule, NzGridModule, NzInputNumberModule, NzDropDownModule,
+    NzIconModule
+  ],
   templateUrl: './product-management.component.html',
   styleUrl: './product-management.component.css',
 })
@@ -35,6 +39,9 @@ export class ProductManagementComponent implements OnInit {
   categorys: any[] = [];
   manufactures: any[] = [];
   gridData: any[] = [];
+  public pageSize: number = 5;         // Số dòng mỗi trang
+  public skip: number = 0;             // Vị trí bắt đầu trang hiện tại
+  public gridView: any[] = [];         // Dữ liệu đang hiển thị trong grid
 
   selectedProduct: any = null;
   isNew = false;
@@ -48,6 +55,7 @@ export class ProductManagementComponent implements OnInit {
   isDeleting = false;
   successCount = 0;
   failCount = 0;
+  total = 0;
 
   public fileExcelIcon: SVGIcon = fileExcelIcon;
 
@@ -67,6 +75,8 @@ export class ProductManagementComponent implements OnInit {
       next: (data) => {
         this.productss = data;
         this.gridData = data;
+        this.loadItems();
+
       },
       error: (err) => console.error('Lỗi khi tải sản phẩm:', err)
     });
@@ -86,7 +96,20 @@ export class ProductManagementComponent implements OnInit {
       },
       error: (err) => console.error('Lỗi khi tải nhà sản xuất:', err)
     });
+
   }
+
+  loadItems(): void {
+    this.gridView = this.gridData.slice(this.skip, this.skip + this.pageSize);
+  }
+
+
+  pageChange(event: PageChangeEvent): void {
+    this.skip = event.skip;
+    this.loadItems();
+  }
+
+
 
   onAddProduct(): void {
     this.isNew = true;
