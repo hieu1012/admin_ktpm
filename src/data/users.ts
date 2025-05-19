@@ -1,47 +1,32 @@
 export const USERS = [
-    {
-        id: 1,
-        name: "Nguyễn Văn A",
-        email: "a.nguyen@example.com",
-        phone: "0912345678",
-        totalOrders: 12,
-        status: "active",
-        role: "user"
-    },
-    {
-        id: 2,
-        name: "Trần Thị B",
-        email: "b.tran@example.com",
-        phone: "0987654321",
-        totalOrders: 5,
-        status: "locked",
-        role: "user"
-    },
-    {
-        id: 3,
-        name: "Lê Văn C",
-        email: "c.le@example.com",
-        phone: "0933445566",
-        totalOrders: 8,
-        status: "active",
-        role: "staff"
-    },
-    {
-        id: 4,
-        name: "Phạm Thị D",
-        email: "d.pham@example.com",
-        phone: "0909988776",
-        totalOrders: 0,
-        status: "inactive",
-        role: "user"
-    },
-    {
-        id: 5,
-        name: "Đỗ Văn E",
-        email: "e.do@example.com",
-        phone: "0922113344",
-        totalOrders: 3,
-        status: "active",
-        role: "user"
-    }
+    { id: 1, name: "Nguyễn Văn Nam", email: "nam.nguyen@example.com", phone: "0912345678", totalOrders: 12, status: "active", role: "user" },
+    { id: 2, name: "Trần Thị Mai", email: "mai.tran@example.com", phone: "0987654321", totalOrders: 5, status: "locked", role: "user" },
+    { id: 3, name: "Lê Văn Hùng", email: "hung.le@example.com", phone: "0933445566", totalOrders: 8, status: "active", role: "staff" },
+    { id: 4, name: "Phạm Thị Hằng", email: "hang.pham@example.com", phone: "0909988776", totalOrders: 0, status: "inactive", role: "user" },
+    { id: 5, name: "Đỗ Văn Hòa", email: "hoa.do@example.com", phone: "0922113344", totalOrders: 3, status: "active", role: "user" },
+    { id: 6, name: "Nguyễn Thị Lan", email: "lan.nguyen@example.com", phone: "0901112233", totalOrders: 7, status: "active", role: "user" },
+    { id: 7, name: "Lê Minh Tuấn", email: "tuan.le@example.com", phone: "0977223344", totalOrders: 14, status: "active", role: "admin" },
+    { id: 8, name: "Trần Văn Hùng", email: "hung.tran@example.com", phone: "0988997766", totalOrders: 2, status: "locked", role: "user" },
+    { id: 9, name: "Vũ Thị Thu", email: "thu.vu@example.com", phone: "0911223344", totalOrders: 6, status: "active", role: "user" },
+    { id: 10, name: "Nguyễn Hữu Đạt", email: "dat.nguyen@example.com", phone: "0933221100", totalOrders: 1, status: "active", role: "staff" },
+    { id: 11, name: "Lê Thanh Huyền", email: "huyen.le@example.com", phone: "0903322445", totalOrders: 10, status: "active", role: "user" },
+    { id: 12, name: "Phạm Minh Quân", email: "quan.pham@example.com", phone: "0966112233", totalOrders: 4, status: "inactive", role: "user" },
+    { id: 13, name: "Đặng Thị Ngọc", email: "ngoc.dang@example.com", phone: "0977889900", totalOrders: 9, status: "active", role: "user" },
+    { id: 14, name: "Nguyễn Tuấn Kiệt", email: "kiet.nguyen@example.com", phone: "0922998877", totalOrders: 0, status: "locked", role: "user" },
+    { id: 15, name: "Trần Thị Nhung", email: "nhung.tran@example.com", phone: "0944556677", totalOrders: 11, status: "active", role: "user" },
+    { id: 16, name: "Lê Văn Dũng", email: "dung.le@example.com", phone: "0988112233", totalOrders: 6, status: "active", role: "staff" },
+    { id: 17, name: "Phan Thị Kim", email: "kim.phan@example.com", phone: "0933445567", totalOrders: 3, status: "inactive", role: "user" },
+    { id: 18, name: "Nguyễn Hoàng Long", email: "long.nguyen@example.com", phone: "0911554466", totalOrders: 7, status: "active", role: "user" },
+    { id: 19, name: "Trần Minh Thảo", email: "thao.tran@example.com", phone: "0977332211", totalOrders: 5, status: "locked", role: "user" },
+    { id: 20, name: "Đinh Thị Phượng", email: "phuong.dinh@example.com", phone: "0966889900", totalOrders: 0, status: "inactive", role: "user" },
+    { id: 21, name: "Nguyễn Thành Công", email: "cong.nguyen@example.com", phone: "0909112233", totalOrders: 12, status: "active", role: "admin" },
+    { id: 22, name: "Lê Thị Tuyết", email: "tuyet.le@example.com", phone: "0944778899", totalOrders: 2, status: "active", role: "user" },
+    { id: 23, name: "Trần Quốc Khánh", email: "khanh.tran@example.com", phone: "0988223366", totalOrders: 4, status: "locked", role: "user" },
+    { id: 24, name: "Hoàng Thị Hoa", email: "hoa.hoang@example.com", phone: "0911223345", totalOrders: 6, status: "active", role: "user" },
+    { id: 25, name: "Phạm Văn Bình", email: "binh.pham@example.com", phone: "0909332211", totalOrders: 0, status: "inactive", role: "user" },
+    { id: 26, name: "Ngô Thị Yến", email: "yen.ngo@example.com", phone: "0922445566", totalOrders: 8, status: "active", role: "staff" },
+    { id: 27, name: "Nguyễn Đức Anh", email: "anh.nguyen@example.com", phone: "0977448899", totalOrders: 3, status: "active", role: "user" },
+    { id: 28, name: "Lương Thị Trang", email: "trang.luong@example.com", phone: "0933997766", totalOrders: 9, status: "active", role: "user" },
+    { id: 29, name: "Vũ Minh Trí", email: "tri.vu@example.com", phone: "0988112234", totalOrders: 5, status: "active", role: "user" },
+    { id: 30, name: "Đặng Văn Lâm", email: "lam.dang@example.com", phone: "0901554466", totalOrders: 7, status: "active", role: "user" }
 ];

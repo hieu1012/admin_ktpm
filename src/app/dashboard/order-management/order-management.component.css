@@ -1,0 +1,158 @@
+::ng-deep .k-grid .center-checkbox-column .k-cell-inner {
+    justify-content: center !important;
+}
+
+::ng-deep .advanced-search-dropdown {
+    background-color: white;
+    padding: 1rem;
+    width: 600px;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-container {
+    width: 180mm;
+    padding: 15mm;
+    margin: 0 auto;
+    background-color: white;
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #333;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    /* align-items: center; */
+    margin-bottom: 10px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+}
+
+.invoice-info {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.invoice-title {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 10pt;
+}
+
+.invoice-details-left,
+.invoice-details-right {
+    width: 48%;
+}
+
+.status-text {
+    font-weight: bold;
+}
+
+.invoice-items {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 10pt;
+}
+
+.invoice-items th,
+.invoice-items td {
+    border: 1px solid #ddd;
+    padding: 6px;
+}
+
+.invoice-items th {
+    background-color: #f5f5f5;
+    text-align: left;
+}
+
+.invoice-items tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.invoice-items td:nth-child(3),
+.invoice-items th:nth-child(3) {
+    text-align: center;
+}
+
+.invoice-items td:nth-child(4),
+.invoice-items td:nth-child(5),
+.invoice-items th:nth-child(4),
+.invoice-items th:nth-child(5) {
+    text-align: right;
+}
+
+.invoice-total {
+    text-align: right;
+    font-size: 12pt;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.invoice-note {
+    font-size: 9pt;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.signature-area {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.signature-box {
+    text-align: center;
+    width: 40%;
+}
+
+.signature-box p {
+    margin: 5px 0;
+}
+
+.signature-box p:first-child {
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.invoice-footer {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .invoice-container,
+    .invoice-container * {
+        visibility: visible;
+    }
+
+    .invoice-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+        padding: 10mm;
+    }
+}

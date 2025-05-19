@@ -1,1 +1,17 @@
-<p>dialog-cofirm works!</p>
+<kendo-dialog *ngIf="isVisible" (close)="cancelDelete()" title="Xác nhận xóa" [width]="450" class="shadow-lg">
+
+    <div class="p-6 flex flex-col items-center">
+        <p class="text-gray-700 font-medium text-center mb-1">Bạn có chắc chắn muốn xóa?</p>
+        <p class="text-gray-500 text-sm text-center">Hành động này không thể hoàn tác.</p>
+    </div>
+
+    <kendo-dialog-actions class="p-4 bg-gray-50 border-t flex justify-end gap-2">
+        <button kendoButton class="text-gray-700  bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
+            (click)="cancelDelete()">Hủy</button>
+        <button kendoButton class="bg-red-600 !text-white hover:bg-red-700 p-2 rounded-[10px]"
+            (click)="confirmDelete()">
+            <span class="k-icon k-i-delete mr-1"></span>
+            Xóa
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>

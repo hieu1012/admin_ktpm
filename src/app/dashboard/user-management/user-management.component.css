@@ -1,3 +1,12 @@
 ::ng-deep .k-grid .center-checkbox-column .k-cell-inner {
     justify-content: center !important;
 }
+
+
+::ng-deep .advanced-search-dropdown {
+    background-color: white;
+    padding: 1rem;
+    width: 600px;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}

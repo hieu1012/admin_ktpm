@@ -1,0 +1,73 @@
+<!-- PHẦN THỐNG KÊ -->
+<div class="p-4">
+    <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="6">
+            <nz-card (click)="clearFilter()" class="cursor-pointer hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Tổng số đơn hàng'" [nzValue]="totalOrders"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6">
+            <nz-card class="hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Tổng doanh thu'" [nzValue]="totalRevenue | priceFormat"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6">
+            <nz-card class="hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Khách hàng khác nhau'" [nzValue]="uniqueCustomerCount"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6">
+            <nz-card (click)="selectStatus('completed')" class="cursor-pointer hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Đơn hoàn thành'" [nzValue]="countByStatus('completed')"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6" class="mt-4">
+            <nz-card (click)="selectStatus('pending')" class="cursor-pointer hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Đơn đang xử lý'" [nzValue]="countByStatus('pending')"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6" class="mt-4">
+            <nz-card (click)="selectStatus('shipped')" class="cursor-pointer hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Đơn đang giao'" [nzValue]="countByStatus('shipped')"></nz-statistic>
+            </nz-card>
+        </div>
+
+        <div nz-col [nzSpan]="6" class="mt-4">
+            <nz-card (click)="selectStatus('cancelled')" class="cursor-pointer hover:shadow-lg">
+                <nz-statistic [nzTitle]="'Đơn đã hủy'" [nzValue]="countByStatus('cancelled')"></nz-statistic>
+            </nz-card>
+        </div>
+    </div>
+</div>
+
+<!-- DANH SÁCH ĐƠN HÀNG ĐƯỢC LỌC THEO TRẠNG THÁI -->
+<div class="px-4 mt-4" *ngIf="selectedStatus">
+    <h3 class="text-xl font-semibold mb-2">
+        Danh sách đơn hàng: {{ selectedStatus | uppercase }}
+    </h3>
+    <nz-table [nzData]="filteredOrders" [nzBordered]="true" [nzSize]="'middle'" [nzPageSize]="5">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>SĐT</th>
+                <th>Tổng tiền</th>
+                <th>Ngày tạo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let order of filteredOrders">
+                <td>{{ order.id }}</td>
+                <td>{{ order.customerName }}</td>
+                <td>{{ order.phone }}</td>
+                <td>{{ order.totalPrice | priceFormat }}</td>
+                <td>{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+        </tbody>
+    </nz-table>
+</div>

@@ -1,5 +1,5 @@
 <kendo-grid [kendoGridBinding]="gridData" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
-    (pageChange)="pageChange($event)">
+    (pageChange)="pageChange($event)" [height]="580">
     <!-- Xuất Excel -->
     <kendo-grid-excel fileName="Products.xlsx">
         <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
@@ -219,6 +219,13 @@
                 placeholder="Nhập mô tả ngắn về sản phẩm" rows="3">
             </textarea>
         </div>
+
+        <!-- <div class="mb-5">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Mô tả chi tiết</label>
+            <textarea kendoTextArea class="w-full border rounded-md" [(ngModel)]="selectedProduct.detailDesc"
+                placeholder="Nhập mô tả chi tiết về sản phẩm" rows="6">
+            </textarea>
+        </div> -->
 
         <div class="mb-3">
             <label class="block text-gray-700 text-sm font-medium mb-2">Ảnh sản phẩm</label>

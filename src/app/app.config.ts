@@ -8,7 +8,7 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 import { provideNzIcons } from 'ng-zorro-antd/icon';
-import { FileExcelOutline, SettingOutline, SearchOutline, ExportOutline } from '@ant-design/icons-angular/icons';
+import { FileExcelOutline, SettingOutline, SearchOutline, ExportOutline, PrinterOutline } from '@ant-design/icons-angular/icons';
 
 
 
@@ -21,6 +21,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     ProductService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    provideNzIcons([FileExcelOutline, SettingOutline, SearchOutline, ExportOutline]),
+    provideNzIcons([FileExcelOutline, SettingOutline, SearchOutline, ExportOutline, PrinterOutline]),
   ]
 };

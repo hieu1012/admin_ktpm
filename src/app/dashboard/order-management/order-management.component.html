@@ -1,1 +1,294 @@
-<p>order-management works!</p>
+<kendo-grid [kendoGridBinding]="displayedOrders" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
+    (pageChange)="pageChange($event)" [height]="570">
+
+    <!-- Xuất Excel -->
+    <!-- <kendo-grid-excel fileName="Orders.xlsx">
+        <kendo-excelexport-column field="id" title="Mã đơn hàng"></kendo-excelexport-column>
+        <kendo-excelexport-column field="customerName" title="Tên khách hàng"></kendo-excelexport-column>
+        <kendo-excelexport-column field="phone" title="Số điện thoại"></kendo-excelexport-column>
+        <kendo-excelexport-column field="createdAt" title="Ngày tạo đơn"></kendo-excelexport-column>
+        <kendo-excelexport-column field="totalPrice" title="Tổng tiền"></kendo-excelexport-column>
+        <kendo-excelexport-column field="status" title="Trạng thái"></kendo-excelexport-column>
+    </kendo-grid-excel> -->
+
+    <!-- Toolbar -->
+    <ng-template kendoGridToolbarTemplate>
+        <div class="flex justify-between items-center w-full p-2 font-medium text-[14px]">
+            <div class="flex justify-between  w-full">
+                <div class="flex items-center gap-2 ">
+                    <button kendoButton
+                        class="k-button-md k-rounded-md bg-blue-100 flex items-center gap-1 cursor-pointer">
+                        <div nz-dropdown nzTrigger="click" nzOverlayClassName="advanced-search-dropdown"
+                            nzPlacement="bottomLeft">
+                            <nz-icon nzType="search" nzTheme="outline" />
+                            Tìm kiếm
+                        </div>
+                    </button>
+                </div>
+                <button kendoGridExcelCommand class="k-button-md k-rounded-md bg-blue-200 ">
+                    <nz-icon nzType="export" nzTheme="outline" />
+                </button>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Cột checkbox chọn -->
+    <kendo-grid-column [width]="50" [headerClass]="'center-checkbox-column'" [class]="'center-checkbox-column'">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="flex items-center justify-center">
+                <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection($event)"
+                    class="h-4 w-4" />
+            </div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="flex items-center justify-center">
+                <input type="checkbox" [checked]="isItemSelected(dataItem)" (change)="toggleItemSelection(dataItem)"
+                    class="h-4 w-4" />
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột hành động -->
+    <kendo-grid-column title="Hành động" [width]="110">
+        <ng-template kendoGridHeaderTemplate>
+            <div class=" font-semibold text-[15px]">
+                Hành động
+            </div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="flex justify-center items-center">
+                <a nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomCenter"
+                    class="cursor-pointer p-2 rounded-full hover:bg-gray-300">
+                    <nz-icon nzType="bars" nzTheme="outline"></nz-icon>
+                </a>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                    <ul nz-menu class="py-1 shadow-lg rounded-md min-w-[110px] bg-white">
+                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer"
+                            (click)="showOrderDetail(dataItem)">
+                            <div class="flex items-center">
+                                <nz-icon nzType="eye" nzTheme="outline" class="!text-teal-500 mr-2" />
+                                <span>Xem </span>
+                            </div>
+                        </li>
+                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer">
+                            <div class="flex items-center">
+                                <nz-icon nzType="edit" nzTheme="outline" class="!text-blue-500 mr-2"></nz-icon>
+                                <span>Chỉnh sửa</span>
+                            </div>
+                        </li>
+                        <li nz-menu-item class="hover:bg-red-300 p-2 text-[14px] cursor-pointer">
+                            <div class="flex items-center">
+                                <nz-icon nzType="delete" nzTheme="outline" class="!text-red-500 mr-2"></nz-icon>
+                                <span>Xóa</span>
+                            </div>
+                        </li>
+                    </ul>
+                </nz-dropdown-menu>
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Cột STT -->
+    <kendo-grid-column [width]="80">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="w-full text-center font-semibold text-[15px]">STT</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+            <div class="flex items-center justify-center ">
+                {{ rowIndex + 1 }}
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <!-- Các cột dữ liệu -->
+    <kendo-grid-column field="id" title="Mã đơn hàng" [width]="120">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px]">Mã đơn hàng</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="customerName" title="Tên khách hàng">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px]">Tên khách hàng</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="phone" title="Số điện thoại">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px]">Số điện thoại</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="createdAt" title="Ngày tạo đơn" [width]="130">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px]">Ngày tạo đơn</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            {{ dataItem.createdAt| date: 'dd/MM/yyyy HH:mm:ss' }}
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="totalPrice" title="Tổng tiền" [width]="130">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px] text-right w-full">Tổng tiền</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="text-right w-full">
+                {{ dataItem.totalPrice | priceFormat }}
+            </div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="status" title="Trạng thái" [width]="120">
+        <ng-template kendoGridHeaderTemplate>
+            <div class="font-semibold text-[15px]">Trạng thái</div>
+        </ng-template>
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <span [ngClass]="{
+                'text-yellow-600': dataItem.status === 'pending',
+                'text-blue-600': dataItem.status === 'shipped',
+                'text-green-600': dataItem.status === 'completed',
+                'text-red-600': dataItem.status === 'cancelled'
+            }">
+                {{ dataItem.status }}
+            </span>
+        </ng-template>
+    </kendo-grid-column>
+</kendo-grid>
+
+
+
+
+<nz-modal [(nzVisible)]="isDetailVisible" [nzTitle]="'Chi tiết hóa đơn'" [nzCentered]="true" [nzFooter]="null"
+    [nzWidth]="750" (nzOnCancel)="handleCloseDetail()">
+    <ng-container *nzModalContent>
+        <div id="" class="px-4 text-[15px] text-gray-800">
+            <!-- Header -->
+            <div class="flex justify-between mb-6">
+                <div>
+                    <p><strong>Mã đơn:</strong> {{ orderDetail?.id }}</p>
+                    <p><strong>Ngày tạo:</strong> {{ orderDetail?.createdAt |date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+                    <p>
+                        <strong>Trạng thái:</strong>
+                        <span [ngClass]="{
+              'text-yellow-600': orderDetail?.status === 'pending',
+              'text-blue-600': orderDetail?.status === 'shipped',
+              'text-green-600': orderDetail?.status === 'completed',
+              'text-red-600': orderDetail?.status === 'cancelled'
+            }">
+                            {{ orderDetail?.status | uppercase }}
+                        </span>
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p><strong>Khách hàng:</strong> {{ orderDetail?.customerName }}</p>
+                    <p><strong>Điện thoại:</strong> {{ orderDetail?.phone }}</p>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table class="w-full text-sm border border-gray-300 rounded overflow-hidden shadow-sm">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr class="text-left">
+                        <th class="p-3 border">#</th>
+                        <th class="p-3 border">Sản phẩm</th>
+                        <th class="p-3 border text-center">SL</th>
+                        <th class="p-3 border text-right">Đơn giá</th>
+                        <th class="p-3 border text-right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of orderDetail?.items; let i = index" class="hover:bg-gray-50">
+                        <td class="p-3 border">{{ i + 1 }}</td>
+                        <td class="p-3 border">{{ item.name }}</td>
+                        <td class="p-3 border text-center">{{ item.quantity }}</td>
+                        <td class="p-3 border text-right">{{ item.price | priceFormat }}</td>
+                        <td class="p-3 border text-right">{{ item.price * item.quantity | priceFormat }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Total -->
+            <div class="text-right mt-4 pr-2 text-[16px] font-semibold">
+                Tổng tiền: <span class="text-red-600">{{ orderDetail?.totalPrice | priceFormat }}</span>
+            </div>
+
+            <!-- Ghi chú -->
+            <div class="mt-6 text-gray-500 italic text-sm">
+                Cảm ơn quý khách đã mua hàng tại hệ thống của chúng tôi.
+                Vui lòng giữ lại hóa đơn để được hỗ trợ bảo hành và đổi trả sản phẩm (nếu có).
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button nz-button nzType="primary" (click)="onPreviewInvoicePDF()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded shadow">
+                    <i nz-icon nzType="printer" class="mr-2"></i> In hóa đơn
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</nz-modal>
+
+
+<!-- In hóa đơn --><!-- Invoice template -->
+<div *ngIf="showInvoicePrint" class="invoice-container">
+    <div class="invoice-header">
+        <div class="logo">
+            <img src="/assets/logo.png" alt="logo">
+        </div>
+        <div class="invoice-info">
+            <p>Số: <strong>HD-{{ orderDetail?.id }}</strong></p>
+            <!-- Tôi muốn in ra ngà giờ hiện tại -->
+            <p>Ngày in: {{ currentDate | date: 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+    </div>
+
+    <h1 class="invoice-title">HÓA ĐƠN BÁN HÀNG</h1>
+
+    <div class="invoice-details">
+        <div class="invoice-details-left">
+            <p><strong>Mã đơn:</strong> {{ orderDetail?.id }}</p>
+            <p><strong>Ngày tạo:</strong> {{ orderDetail?.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+            <p><strong>Trạng thái: </strong> <span class="status-text">{{ getStatusText(orderDetail?.status) }}</span>
+            </p>
+        </div>
+        <div class="invoice-details-right">
+            <p><strong>Khách hàng:</strong> {{ orderDetail?.customerName }}</p>
+            <p><strong>Điện thoại:</strong> {{ orderDetail?.phone }}</p>
+            <p><strong>Địa chỉ:</strong></p>
+        </div>
+    </div>
+
+    <table class="invoice-items">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Sản phẩm</th>
+                <th>SL</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of orderDetail?.items; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price | priceFormat }}</td>
+                <td>{{ item.quantity * item.price | priceFormat }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="invoice-total">
+        <strong>Tổng tiền:</strong> {{ orderDetail?.totalPrice | priceFormat }}
+    </div>
+
+    <p class="invoice-note">
+        Cảm ơn quý khách đã mua hàng tại hệ thống của chúng tôi. Vui lòng giữ lại hóa đơn để được hỗ trợ bảo hành và đổi
+        trả sản phẩm (nếu có).
+    </p>
+
+    <div class="invoice-footer">
+        <p>Mọi thắc mắc xin liên hệ: Hotline 096 107 4946 - Email: support&#64;chillguyshop.com</p>
+    </div>
+</div>

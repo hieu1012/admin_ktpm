@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, from, map, switchMap } from 'rxjs';
+
+import { InventoryService } from './inventory.service';
 
 @Injectable({
     providedIn: 'root'
@@ -8,7 +10,7 @@ import { Observable, map } from 'rxjs';
 export class ProductService {
     private apiUrl = 'http://localhost:8089/api/product';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private inventoryService: InventoryService) { }
 
     getAllProducts(): Observable<any[]> {
         return this.http.get<any>(this.apiUrl).pipe(
@@ -36,14 +38,15 @@ export class ProductService {
 
     updateProduct(product: any, file: File | null): Observable<any> {
         const formData = new FormData();
-
         // Thêm các trường cơ bản vào formData
         formData.append('id', product.id.toString());
-        formData.append('name', product.name);
+        // formData.append('name', product.name);
         formData.append('price', product.price.toString());
         formData.append('shortDesc', product.shortDesc || '');
         formData.append('detailDesc', product.detailDesc || '');
-        formData.append('quantity', product.quantity.toString());
+        // formData.append('quantity', product.quantity.toString());
+
+
 
         // Xử lý trường categoryId
         if (product.category) {
@@ -67,8 +70,17 @@ export class ProductService {
             formData.append('file', file);
         }
 
-        // Gọi API PUT
-        return this.http.put<any>(`${this.apiUrl}`, formData);
+        return this.inventoryService.updateInventory(product.id, product.quantity, product.name).pipe(
+            switchMap((inventoryResponse: any) => {
+
+                // Sử dụng giá trị từ response inventory để thêm vào formData
+                formData.append('quantity', inventoryResponse.data.quantity.toString());
+                formData.append('name', inventoryResponse.data.productName);
+
+                // Sau khi đã thêm đầy đủ dữ liệu, gọi API cập nhật product
+                return this.http.put<any>(`${this.apiUrl}`, formData);
+            })
+        );
     }
 
 

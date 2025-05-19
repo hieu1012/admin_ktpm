@@ -1,0 +1,99 @@
+.modal-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+:host ::ng-deep .ant-form-item-label>label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+:host ::ng-deep .ant-modal-content {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+:host ::ng-deep .ant-modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+:host ::ng-deep .ant-modal-footer {
+    padding: 0;
+    border-top: none;
+}
+
+:host ::ng-deep .ant-form-item {
+    margin-bottom: 20px;
+}
+
+:host ::ng-deep .ant-select {
+    width: 100%;
+}
+
+:host ::ng-deep .ant-input-affix-wrapper:hover,
+:host ::ng-deep .ant-input:hover,
+:host ::ng-deep .ant-select:hover .ant-select-selector {
+    border-color: #40a9ff;
+}
+
+:host ::ng-deep .ant-input-affix-wrapper:focus,
+:host ::ng-deep .ant-input:focus,
+:host ::ng-deep .ant-select-focused .ant-select-selector {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Custom eye icon styles */
+:host ::ng-deep .ant-input-suffix {
+    cursor: pointer;
+    color: #bfbfbf;
+}
+
+:host ::ng-deep .ant-input-suffix:hover {
+    color: #40a9ff;
+}
+
+/* Error message styles */
+:host ::ng-deep .ant-form-item-explain-error {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Button styles */
+:host ::ng-deep .ant-btn {
+    height: 38px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+:host ::ng-deep .ant-btn-primary {
+    background-color: #1890ff;
+}
+
+:host ::ng-deep .ant-btn-primary:hover {
+    background-color: #40a9ff;
+}
+
+/* Animation for form validation */
+:host ::ng-deep .ng-invalid.ng-touched:not(form) {
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-5px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(5px);
+    }
+}

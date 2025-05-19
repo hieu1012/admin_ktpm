@@ -24,6 +24,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 
+import { InventoryService } from '../../core/services/inventory.service';
 
 
 @Component({
@@ -63,7 +64,7 @@ export class ProductManagementComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private manufactureService: ManufactureService,
-
+    private inventoryService: InventoryService
   ) { }
 
   ngOnInit(): void {
@@ -76,7 +77,6 @@ export class ProductManagementComponent implements OnInit {
         this.productss = data;
         this.gridData = data;
         this.loadItems();
-
       },
       error: (err) => console.error('Lỗi khi tải sản phẩm:', err)
     });
@@ -117,7 +117,7 @@ export class ProductManagementComponent implements OnInit {
       name: '',
       price: 100000,
       shortDesc: '',
-      detailDesc: '',
+      detailDesc: 'Laptop cao cấp với màn hình InfinityEdge, CPU Intel Core i7 thế hệ 11',
       quantity: 1,
       image: '',
       category: { id: '', name: '' },

@@ -1,4 +1,5 @@
-<kendo-grid [kendoGridBinding]="listUsers">
+<kendo-grid [kendoGridBinding]="listUsers" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
+    (pageChange)="pageChange($event)" [height]="570">
     <!-- Xuất Excel -->
     <kendo-grid-excel fileName="Users.xlsx">
         <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
@@ -17,25 +18,24 @@
                 <div class="flex items-center gap-2 ">
                     <button kendoButton class="k-button-md k-rounded-md bg-green-200 cursor-pointer"
                         (click)="openUserForm()">
-                        + Thêm sản phẩm</button>
-                    <!-- <button kendoButton
+                        + Thêm người dùng</button>
+                    <button kendoButton
                         class="k-button-md k-rounded-md bg-blue-100 flex items-center gap-1 cursor-pointer">
-                        <div nz-dropdown [nzDropdownMenu]="advancedSearchMenu" nzTrigger="click"
+                        <div nz-dropdown [nzDropdownMenu]="userSearchMenu" nzTrigger="click"
                             nzOverlayClassName="advanced-search-dropdown" nzPlacement="bottomLeft">
                             <nz-icon nzType="search" nzTheme="outline" />
                             Tìm kiếm
                         </div>
-                    </button> -->
+                    </button>
 
                     <!-- Nút xóa nhiều sản phẩm - hiển thị chỉ khi có mục được chọn -->
-                    <!-- <ng-container *ngIf="selectedItems.length > 0">
-                        <button kendoButton
-                            class="k-button-md k-rounded-md bg-red-200 flex items-center gap-1 cursor-pointer"
-                            (click)="openBulkDeleteDialog()">
-                            <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
-                            Xóa các mục đã chọn ({{selectedItems.length}})
+                    <ng-container *ngIf="selectedItems.length > 0">
+                        <button kendoButton [disabled]="selectedItems.length === 0" (click)="openMultiDeleteDialog()"
+                            class="k-button-md k-rounded-md bg-red-200 text-white">
+                            <span nz-icon nzType="delete" nzTheme="outline"></span>
+                            Xóa đã chọn ({{selectedItems.length}})
                         </button>
-                    </ng-container> -->
+                    </ng-container>
                 </div>
                 <button kendoGridExcelCommand class="k-button-md k-rounded-md bg-blue-200 ">
                     <nz-icon nzType="export" nzTheme="outline" />
@@ -75,13 +75,15 @@
                 </a>
                 <nz-dropdown-menu #menu="nzDropdownMenu">
                     <ul nz-menu class="py-1 shadow-lg rounded-md min-w-[110px] bg-white">
-                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer">
+                        <li nz-menu-item class="hover:bg-blue-300 p-2 text-[14px] cursor-pointer"
+                            (click)="openUserForm(dataItem)">
                             <div class="flex items-center">
                                 <nz-icon nzType="edit" nzTheme="outline" class="!text-blue-500 mr-2"></nz-icon>
                                 <span>Chỉnh sửa</span>
                             </div>
                         </li>
-                        <li nz-menu-item class="hover:bg-red-300 p-2 text-[14px] cursor-pointer">
+                        <li nz-menu-item class="hover:bg-red-300 p-2 text-[14px] cursor-pointer"
+                            (click)="openDeleteDialog(dataItem.id)">
                             <div class="flex items-center">
                                 <nz-icon nzType="delete" nzTheme="outline" class="!text-red-500 mr-2"></nz-icon>
                                 <span>Xóa</span>
@@ -149,5 +151,78 @@
     </kendo-grid-column>
 </kendo-grid>
 
-<app-user-form [isVisible]="isUserFormVisible" (modalClosed)="onModalClosed()"
+<app-user-form [isVisible]="isUserFormVisible" [userData]="currentUser" (modalClosed)="onModalClosed()"
     (userSaved)="onUserSaved($event)"></app-user-form>
+
+<app-dialog-cofirm [isVisible]="isDeleteDialogVisible" (isVisibleChange)="onDialogVisibleChange()"
+    (confirm)="onDeleteConfirmed($event)"></app-dialog-cofirm>
+
+<app-dialog-cofirm-mutil [(isVisible)]="isMultiDeleteDialogVisible" [selectedItems]="selectedItems"
+    (deleteConfirmed)="handleMultiDelete($event)">
+</app-dialog-cofirm-mutil>
+
+<nz-dropdown-menu #userSearchMenu="nzDropdownMenu">
+    <!-- Tiêu đề -->
+    <div class="text-[16px] font-medium pb-2 border-b border-gray-300">
+        Tìm kiếm người dùng
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+        <!-- Tên -->
+        <div>
+            <label class="text-sm block mb-1">Họ tên</label>
+            <input nz-input [(ngModel)]="userSearchCriteria.name" placeholder="Nhập họ tên" />
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label class="text-sm block mb-1">Email</label>
+            <input nz-input [(ngModel)]="userSearchCriteria.email" placeholder="Nhập email" />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <!-- SĐT -->
+        <div>
+            <label class="text-sm block mb-1">Số điện thoại</label>
+            <input nz-input [(ngModel)]="userSearchCriteria.phone" placeholder="Nhập SĐT" />
+        </div>
+
+        <!-- Số đơn hàng -->
+        <div>
+            <label class="text-sm block mb-1">Tổng đơn hàng</label>
+            <nz-input-number [(ngModel)]="userSearchCriteria.minOrders" [nzMin]="0" class="w-full"></nz-input-number>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <!-- Trạng thái -->
+        <div>
+            <label class="text-sm block mb-1">Trạng thái</label>
+            <nz-select [(ngModel)]="userSearchCriteria.status" nzPlaceHolder="Chọn trạng thái" [nzAllowClear]="true"
+                class="w-full">
+                <nz-option nzValue="active" nzLabel="Active"></nz-option>
+                <nz-option nzValue="inactive" nzLabel="Inactive"></nz-option>
+                <nz-option nzValue="locked" nzLabel="Locked"></nz-option>
+            </nz-select>
+        </div>
+
+        <!-- Vai trò -->
+        <div>
+            <label class="text-sm block mb-1">Vai trò</label>
+            <nz-select [(ngModel)]="userSearchCriteria.role" nzPlaceHolder="Chọn vai trò" [nzAllowClear]="true"
+                class="w-full">
+                <nz-option nzValue="user" nzLabel="User"></nz-option>
+                <nz-option nzValue="staff" nzLabel="Staff"></nz-option>
+                <nz-option nzValue="admin" nzLabel="Admin"></nz-option>
+            </nz-select>
+        </div>
+    </div>
+
+    <!-- Nút thao tác -->
+    <div class="flex justify-end gap-2 pt-2 border-t border-gray-300 mt-4">
+        <button nz-button (click)="resetUserSearchCriteria()">Xóa bộ lọc</button>
+        <button nz-button nzType="primary" (click)="applyUserSearch()">Tìm kiếm</button>
+    </div>
+</nz-dropdown-menu>

@@ -8,5 +8,13 @@
         "target": "http://localhost:8081",
         "secure": false,
         "changeOrigin": true
+    },
+    "/inventory": {
+        "target": "http://localhost:8089",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/inventory": ""
+        }
     }
 }
