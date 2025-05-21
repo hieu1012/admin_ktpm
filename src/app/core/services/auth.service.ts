@@ -32,10 +32,17 @@ export class AuthService {
 
                     this.userService.getUser().subscribe({
                         next: (user) => {
-                            // console.log('Thông tin người dùng:', user.data);
-                            localStorage.setItem('user', JSON.stringify(user.data));
-                            console.log('Thông tin user đã được lưu trữ', localStorage.getItem('user'));
-                            this.router.navigate(['/dashboard/products']);
+                            console.log('Thông tin người dùng:', user.data.role);
+                            // ADMIN
+                            if (user.data.role === 'ADMIN') {
+                                localStorage.setItem('user', JSON.stringify(user.data));
+                                console.log('Thông tin user đã được lưu trữ', localStorage.getItem('user'));
+                                this.router.navigate(['/dashboard/products']);
+                            } else {
+                                // Một thông báo cho người dùng biết rằng họ không có quyền truy cập
+                                alert('Bạn không có quyền truy cập vào trang này.');
+                                this.router.navigate(['/login']);
+                            }
                         },
                         error: (error) => {
                             console.error('Lỗi khi lấy thông tin người dùng:', error);

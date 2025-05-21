@@ -1,13 +1,13 @@
 <kendo-grid [kendoGridBinding]="gridData" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
     (pageChange)="pageChange($event)" [height]="580">
     <!-- Xuất Excel -->
-    <kendo-grid-excel fileName="Products.xlsx">
+    <kendo-grid-excel fileName="Products.xlsx" [fetchData]="fetchProductsForExcel">
         <kendo-excelexport-column field="id" title="ID"></kendo-excelexport-column>
         <kendo-excelexport-column field="name" title="Tên sản phẩm"></kendo-excelexport-column>
         <kendo-excelexport-column field="shortDesc" title="Mô tả ngắn"></kendo-excelexport-column>
         <kendo-excelexport-column field="quantity" title="Tồn kho"></kendo-excelexport-column>
         <kendo-excelexport-column field="price" title="Giá"></kendo-excelexport-column>
-        <kendo-excelexport-column field="image" title="Ảnh"></kendo-excelexport-column>
+        <!-- <kendo-excelexport-column field="imageUrls" title="Ảnh"></kendo-excelexport-column> -->
         <kendo-excelexport-column field="category.name" title="Danh mục"></kendo-excelexport-column>
         <kendo-excelexport-column field="manufacture.name" title="Hãng sản xuất"></kendo-excelexport-column>
     </kendo-grid-excel>
@@ -166,7 +166,7 @@
         </ng-template>
         <ng-template kendoGridCellTemplate let-dataItem>
             <div class="flex items-center justify-center h-[70px]">
-                <img [src]="dataItem.image" alt="{{ dataItem.name }}" class="object-contain h-full" />
+                <img [src]="dataItem.images[0].url" alt="{{ dataItem.name }}" class="object-contain h-full" />
             </div>
         </ng-template>
     </kendo-grid-column>
@@ -230,8 +230,7 @@
         <div class="mb-3">
             <label class="block text-gray-700 text-sm font-medium mb-2">Ảnh sản phẩm</label>
 
-            <div class="flex flex-col md:flex-row gap-4 items-start">
-                <!-- Image Preview -->
+            <!-- <div class="flex flex-col md:flex-row gap-4 items-start">
                 <div *ngIf="selectedProduct.image" class="relative">
                     <img [src]="selectedProduct.image" alt="Preview"
                         class="w-40 h-40 object-cover rounded border border-gray-200" />
@@ -242,7 +241,6 @@
                     </button>
                 </div>
 
-                <!-- Upload Area -->
                 <div class="flex-1 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
                     [class.hidden]="selectedProduct.image">
                     <input type="file" id="productImage" class="hidden" (change)="onImageSelected($event)"
@@ -253,7 +251,28 @@
                         <span class="text-xs text-gray-400 mt-1">Kéo thả hoặc nhấp để chọn file</span>
                     </label>
                 </div>
+            </div> -->
+
+            <div class="flex flex-wrap gap-4">
+                <!-- Image preview -->
+                <div *ngFor="let img of selectedProduct.images; let i = index" class="relative">
+                    <img [src]="img" alt="Preview" class="w-24 h-24 object-cover rounded border" />
+                    <button type="button"
+                        class="absolute -top-2 -right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                        (click)="removeImage(i)">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Empty add box -->
+                <label
+                    class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <input type="file" class="hidden" multiple accept="image/*" (change)="onImagesSelected($event)" />
+                    <span class="text-gray-400 text-xl">+</span>
+                </label>
             </div>
+
+
         </div>
     </div>
 
@@ -261,9 +280,11 @@
         <button kendoButton class="text-gray-700 bg-gray-200 hover:bg-gray-100 p-2 rounded-[10px]"
             (click)="onCancelProduct()">Hủy</button>
         <button kendoButton class="bg-blue-600 !text-white hover:bg-blue-700 p-2 rounded-[10px]"
-            (click)="onSaveProduct(selectedProduct)">
+            (click)="onSaveProduct(selectedProduct)" [disabled]="isLoading">
             <span class="k-icon k-i-save mr-1"></span>
-            Lưu
+            <span *ngIf="!isLoading">Lưu</span>
+            <!-- chỉnh cho nó mờ là được -->
+            <span *ngIf="isLoading" class="opacity-50">Đang lưu...</span>
         </button>
     </kendo-dialog-actions>
 </kendo-dialog>
@@ -380,11 +401,11 @@
             <nz-row nzGutter="8">
                 <nz-col nzSpan="16">
                     <nz-slider [(ngModel)]="searchCriteria.minPrice" [nzMin]="0" [nzMax]="1000000"
-                        [nzStep]="50000"></nz-slider>
+                        [nzStep]="10000"></nz-slider>
                 </nz-col>
                 <nz-col nzSpan="8">
                     <nz-input-number [(ngModel)]="searchCriteria.minPrice" [nzMin]="0" [nzMax]="1000000"
-                        [nzStep]="50000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
+                        [nzStep]="10000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
                     </nz-input-number>
                 </nz-col>
             </nz-row>
@@ -395,11 +416,11 @@
             <nz-row nzGutter="8">
                 <nz-col nzSpan="16">
                     <nz-slider [(ngModel)]="searchCriteria.maxPrice" [nzMin]="0" [nzMax]="1000000"
-                        [nzStep]="50000"></nz-slider>
+                        [nzStep]="10000"></nz-slider>
                 </nz-col>
                 <nz-col nzSpan="8">
                     <nz-input-number [(ngModel)]="searchCriteria.maxPrice" [nzMin]="0" [nzMax]="1000000"
-                        [nzStep]="50000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
+                        [nzStep]="10000" [nzFormatter]="priceFormatter" [nzParser]="priceParser" class="w-full">
                     </nz-input-number>
                 </nz-col>
             </nz-row>

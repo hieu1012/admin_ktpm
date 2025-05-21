@@ -6,8 +6,9 @@ import { CommonModule } from '@angular/common';
 
 
 // Kendo Grid
-import { GridModule, PageChangeEvent, SelectionEvent } from '@progress/kendo-angular-grid';
+import { GridModule, PageChangeEvent, SelectionEvent, GridComponent } from '@progress/kendo-angular-grid';
 import { KENDO_GRID_EXCEL_EXPORT } from '@progress/kendo-angular-grid';
+import { ExcelExportData } from '@progress/kendo-angular-excel-export';
 
 // Ant Design
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -27,6 +28,7 @@ import { ORDERS } from '../../../data/orders';
 import { PriceFormatPipe } from '../../core/pipes/price-format.pipe';
 import { DateTimeFormatPipe } from '../../shared/pipes/datetime-format.pipe';
 
+import { OrderService } from '../../core/services/order.service';
 @Component({
   selector: 'app-order-management',
   templateUrl: './order-management.component.html',
@@ -35,7 +37,10 @@ import { DateTimeFormatPipe } from '../../shared/pipes/datetime-format.pipe';
   imports: [NzTableModule, NzModalModule, NzDescriptionsModule, CommonModule, GridModule, PriceFormatPipe, NzIconModule, KENDO_GRID_EXCEL_EXPORT, NzDropDownModule, NzSelectModule, NzButtonModule, NzInputModule, NzInputNumberModule]
 })
 export class OrderManagementComponent implements OnInit {
-  orders = [...ORDERS];
+
+  constructor(private orderService: OrderService) { }
+
+  orders: any[] = [];
   displayedOrders = [...ORDERS];
 
   public pageSize = 7;
@@ -43,22 +48,41 @@ export class OrderManagementComponent implements OnInit {
   public gridView: any[] = [];
 
   ngOnInit(): void {
-    // this.loadOrders();
+    this.orderService.getAllOrders().subscribe((response: any) => {
+      console.log('Đơn hàng:', response);
+      this.orders = response.data.content;
+      console.log('Danh sách đơn hàng:', this.orders);
+
+    }, (error: any) => {
+      console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+    })
   }
 
 
+  fetchOrdersForExcel = (component: GridComponent): ExcelExportData => {
+    return {
+      data: this.orders
+    };
+  };
 
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'pending': return 'text-yellow-500';
-      case 'shipped': return 'text-blue-500';
-      case 'completed': return 'text-green-600';
-      case 'cancelled': return 'text-red-500';
-      default: return 'text-gray-500';
+
+  getStatusTextVi(status: string): string {
+    if (!status) return '';
+
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'Chờ xử lý';
+      case 'SHIPPED':
+        return 'Đang giao';
+      case 'PAID':
+        return 'Hoàn thành';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      default:
+        return status;
     }
   }
-
   viewOrderDetail(order: any): void {
     console.log('Xem chi tiết đơn hàng:', order);
     // Có thể mở modal hoặc điều hướng sang trang chi tiết
@@ -146,6 +170,19 @@ export class OrderManagementComponent implements OnInit {
         this.showInvoicePrint = false;
       });
     }, 500); // Tăng thời gian chờ để đảm bảo HTML đã render
+  }
+  printTest(): void {
+    const el = document.getElementById('print-test');
+    if (!el) {
+      console.error('Không tìm thấy phần tử để in');
+      return;
+    }
+
+    html2pdf().from(el).set({
+      filename: 'test-invoice.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
   }
 
 

@@ -1,8 +1,7 @@
-
 import { Component, OnInit } from '@angular/core';
-import { KENDO_GRID, KENDO_GRID_EXCEL_EXPORT } from "@progress/kendo-angular-grid";
+import { KENDO_GRID_EXCEL_EXPORT } from "@progress/kendo-angular-grid";
 import { FormsModule } from '@angular/forms';
-import { GridModule, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { GridModule, PageChangeEvent, GridComponent } from '@progress/kendo-angular-grid';
 import { DialogModule } from '@progress/kendo-angular-dialog';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NgIf, NgFor } from '@angular/common';
@@ -11,10 +10,9 @@ import { CategoryService } from '../../core/services/category.service';
 import { ManufactureService } from '../../core/services/manufacture.service';
 import { CompositeFilterDescriptor, filterBy } from '@progress/kendo-data-query';
 import { PriceFormatPipe } from '../../core/pipes/price-format.pipe';
-import { UppercasePipe } from '../../core/pipes/uppercase.pipe';
-import { fileExcelIcon, SVGIcon, } from "@progress/kendo-svg-icons";
+import { fileExcelIcon, SVGIcon } from "@progress/kendo-svg-icons";
+import { ExcelExportData } from '@progress/kendo-angular-excel-export';
 import { NzGridModule } from 'ng-zorro-antd/grid';
-
 import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -23,15 +21,14 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
-
 import { InventoryService } from '../../core/services/inventory.service';
+
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 
 @Component({
   selector: 'app-product-management',
-  imports: [NzButtonModule, NzSelectModule, NgFor, NzInputModule, NzInputModule, FormsModule, GridModule, DialogModule, InputsModule, KENDO_GRID_EXCEL_EXPORT, DropDownsModule, NgIf, PriceFormatPipe, NzSliderModule, NzGridModule, NzInputNumberModule, NzDropDownModule,
-    NzIconModule
-  ],
+  imports: [NzButtonModule, NzSelectModule, NgFor, NzSpinModule, NzInputModule, FormsModule, GridModule, DialogModule, InputsModule, KENDO_GRID_EXCEL_EXPORT, DropDownsModule, NgIf, PriceFormatPipe, NzSliderModule, NzGridModule, NzInputNumberModule, NzDropDownModule, NzIconModule],
   templateUrl: './product-management.component.html',
   styleUrl: './product-management.component.css',
 })
@@ -40,25 +37,26 @@ export class ProductManagementComponent implements OnInit {
   categorys: any[] = [];
   manufactures: any[] = [];
   gridData: any[] = [];
-  public pageSize: number = 5;         // Số dòng mỗi trang
-  public skip: number = 0;             // Vị trí bắt đầu trang hiện tại
-  public gridView: any[] = [];         // Dữ liệu đang hiển thị trong grid
+  pageSize: number = 5;
+  skip: number = 0;
+  gridView: any[] = [];
 
   selectedProduct: any = null;
   isNew = false;
-  uploadedFile: File | null = null;
+  uploadedFiles: File[] = [];
   confirmDeleteId: string | null = null;
   showDeleteDialog = false;
-
   selectedItems: any[] = [];
-
   showBulkDeleteDialog = false;
   isDeleting = false;
   successCount = 0;
   failCount = 0;
   total = 0;
+  fileExcelIcon: SVGIcon = fileExcelIcon;
+  isLoading = false;
+  deletedImageUrls: string[] = [];
 
-  public fileExcelIcon: SVGIcon = fileExcelIcon;
+
 
   constructor(
     private productService: ProductService,
@@ -67,12 +65,18 @@ export class ProductManagementComponent implements OnInit {
     private inventoryService: InventoryService
   ) { }
 
+  fetchProductsForExcel = (component: GridComponent): ExcelExportData => {
+    return {
+      data: this.productss
+    };
+  };
+
   ngOnInit(): void {
     this.loadData();
   }
 
   loadData(): void {
-    this.productService.getAllProducts().subscribe({
+    this.productService.getAllProducts(0, 100).subscribe({
       next: (data) => {
         this.productss = data;
         this.gridData = data;
@@ -83,88 +87,140 @@ export class ProductManagementComponent implements OnInit {
 
     this.categoryService.getAllCategories().subscribe({
       next: (res: any) => {
-        this.categorys = res?.data || []
-        console.log('Danh sách Danh mục', this.categorys);
+        this.categorys = res?.data || [];
       },
       error: (err) => console.error('Lỗi khi tải danh mục:', err)
     });
 
     this.manufactureService.getAllManufactures().subscribe({
       next: (res: any) => {
-        this.manufactures = res?.data || []
-        console.log('Danh sách Nhà sản xuất', this.manufactures);
+        this.manufactures = res?.data || [];
       },
       error: (err) => console.error('Lỗi khi tải nhà sản xuất:', err)
     });
-
   }
 
   loadItems(): void {
     this.gridView = this.gridData.slice(this.skip, this.skip + this.pageSize);
   }
 
-
   pageChange(event: PageChangeEvent): void {
     this.skip = event.skip;
     this.loadItems();
   }
 
-
-
   onAddProduct(): void {
     this.isNew = true;
+    this.uploadedFiles = [];
     this.selectedProduct = {
       name: '',
       price: 100000,
       shortDesc: '',
-      detailDesc: 'Laptop cao cấp với màn hình InfinityEdge, CPU Intel Core i7 thế hệ 11',
+      detailDesc: '',
       quantity: 1,
-      image: '',
+      images: [],
       category: { id: '', name: '' },
       manufacture: { id: '', name: '' }
     };
   }
 
+  // onEditProduct(product: any): void {
+  //   this.isNew = false;
+  //   this.uploadedFiles = [];
+  //   this.selectedProduct = { ...product };
+  // }
   onEditProduct(product: any): void {
     this.isNew = false;
-    this.selectedProduct = { ...product };
+
+    this.selectedProduct = {
+      ...product,
+      images: product.images.map((img: any) => img.url)
+    };
+
+    // Reset lại deletedImageUrls
+    this.deletedImageUrls = [];
+
+    // Giả lập file list từ ảnh cũ (không thực sự gửi lại các file này)
+    this.uploadedFiles = product.images.map(() => null); // Dùng null để giữ đúng chỉ số khi remove
   }
 
-  onImageSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.uploadedFile = file;
+
+
+  onImagesSelected(event: any): void {
+    const files: FileList = event.target.files;
+    if (!files.length) return;
+
+    Array.from(files).forEach((file: File) => {
       const reader = new FileReader();
-      reader.onload = () => this.selectedProduct.image = reader.result;
+      reader.onload = () => {
+        this.selectedProduct.images.push(reader.result as string);
+      };
       reader.readAsDataURL(file);
-    }
+      this.uploadedFiles.push(file);
+    });
   }
 
   onSaveProduct(product: any): void {
-    product.id ? this.updateExistingProduct(product) : this.addNewProduct(product);
+    if (this.isNew) {
+      this.addNewProduct(product);
+    } else {
+      this.updateExistingProduct(product);
+    }
   }
 
   updateExistingProduct(product: any): void {
-    this.productService.updateProduct(product, this.uploadedFile).subscribe({
-      next: () => {
-        this.loadData();
-        this.resetForm();
-      },
-      error: (err) => console.error('Lỗi khi cập nhật sản phẩm:', err)
-    });
+    console.log('Cập nhật sản phẩm:', product);
+    this.isLoading = true;
+    this.productService.updateProduct(
+      product,
+      this.uploadedFiles.filter(f => f),
+      this.deletedImageUrls
+    )
+      .subscribe({
+        next: () => {
+          this.loadData();
+          this.resetForm();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Lỗi khi cập nhật sản phẩm:', err);
+          this.isLoading = false;
+        }
+      });
   }
 
+  // addNewProduct(product: any): void {
+  //   if (!product.images || product.images.length === 0) {
+  //     return console.error("Cần chọn hình ảnh cho sản phẩm mới");
+  //   }
+
+  //   this.productService.addProduct(product, this.uploadedFiles).subscribe({
+  //     next: () => {
+  //       this.loadData();
+  //       this.resetForm();
+  //     },
+  //     error: (err) => console.error('Lỗi khi thêm sản phẩm:', err)
+  //   });
+  // }
   addNewProduct(product: any): void {
-    if (!this.uploadedFile) return console.error("Cần chọn hình ảnh cho sản phẩm mới");
+    if (!product.images || product.images.length === 0) {
+      return console.error("Cần chọn hình ảnh cho sản phẩm mới");
+    }
 
-    this.productService.addProduct(product, this.uploadedFile).subscribe({
+    this.isLoading = true; // Bắt đầu loading
+    this.productService.addProduct(product, this.uploadedFiles).subscribe({
       next: () => {
         this.loadData();
         this.resetForm();
+        this.isLoading = false; // Kết thúc loading
       },
-      error: (err) => console.error('Lỗi khi thêm sản phẩm:', err)
+      error: (err) => {
+        console.error('Lỗi khi thêm sản phẩm:', err);
+        this.isLoading = false; // Kết thúc loading khi lỗi
+      }
     });
   }
+
 
   onCancelProduct(): void {
     this.resetForm();
@@ -173,38 +229,32 @@ export class ProductManagementComponent implements OnInit {
   resetForm(): void {
     this.selectedProduct = null;
     this.isNew = false;
-    this.uploadedFile = null;
+    this.uploadedFiles = [];
   }
 
-  openDeleteDialog(id: string): void {
-    this.confirmDeleteId = id;
-    this.showDeleteDialog = true;
+  // removeImage(index: number): void {
+  //   const removed = this.selectedProduct.images.splice(index, 1)[0];
+  //   if (typeof removed === 'string' && removed.startsWith('http')) {
+  //     this.deletedImageUrls.push(removed);
+  //   }
+  //   this.uploadedFiles.splice(index, 1);
+  // }
+  // Khi xóa ảnh
+  removeImage(index: number): void {
+    const removed = this.selectedProduct.images.splice(index, 1)[0];
+
+    if (typeof removed === 'string' && removed.startsWith('http')) {
+      this.deletedImageUrls.push(removed); // lưu URL ảnh cũ cần xóa
+    } else {
+      this.uploadedFiles.splice(index, 1); // ảnh mới thì xóa khỏi mảng files
+    }
+
+    if (this.uploadedFiles[index] !== null) {
+      this.uploadedFiles.splice(index, 1);
+    }
   }
 
-  confirmDelete(): void {
-    if (!this.confirmDeleteId) return;
 
-    this.productService.deleteProduct(this.confirmDeleteId).subscribe({
-      next: () => {
-        this.loadData();
-        this.closeDeleteDialog();
-      },
-      error: (err) => console.error('Lỗi khi xóa sản phẩm:', err)
-    });
-  }
-
-  closeDeleteDialog(): void {
-    this.showDeleteDialog = false;
-    this.confirmDeleteId = null;
-  }
-
-  cancelDelete(): void {
-    this.closeDeleteDialog();
-  }
-
-  removeImage(): void {
-    this.selectedProduct.image = null;
-  }
 
   get isAllSelected(): boolean {
     return this.gridData.length > 0 && this.selectedItems.length === this.gridData.length;
@@ -269,6 +319,33 @@ export class ProductManagementComponent implements OnInit {
   // Parser để nhập giá từ input
   priceParser(value: string): number {
     return parseFloat(value.replace(/[^0-9]/g, '')) || 0;
+  }
+
+  cancelDelete(): void {
+    this.closeDeleteDialog();
+  }
+
+
+  confirmDelete(): void {
+    if (!this.confirmDeleteId) return;
+
+    this.productService.deleteProduct(this.confirmDeleteId).subscribe({
+      next: () => {
+        this.loadData();
+        this.closeDeleteDialog();
+      },
+      error: (err) => console.error('Lỗi khi xóa sản phẩm:', err)
+    });
+  }
+
+  closeDeleteDialog(): void {
+    this.showDeleteDialog = false;
+    this.confirmDeleteId = null;
+  }
+
+  openDeleteDialog(id: string): void {
+    this.confirmDeleteId = id;
+    this.showDeleteDialog = true;
   }
 
   // Reset form tìm kiếm

@@ -20,7 +20,6 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = JSON.parse(localStorage.getItem('user') || '{}');
-
     // Lắng nghe NavigationEnd để cập nhật title khi điều hướng
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
